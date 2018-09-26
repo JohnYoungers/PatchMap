@@ -1,7 +1,7 @@
 var target = Argument("target", "Default");
 var automated = Argument("automated", "false");
 var configuration = Argument("configuration", "Release");
-var buildversion = Argument("buildversion", "0.9.0");
+//var buildversion = Argument("buildversion", "0.9.0");
 
 var artifactsPath = "./artifacts";
 var solutionPath = "./PatchMap.sln";
@@ -33,7 +33,8 @@ Task("Restore")
 Task("Test")
     .Does(() =>
 {
-     DotNetCoreTest(testProjectPath, new DotNetCoreTestSettings { Logger = (automated == "true") ? "Appveyor" : "trx", ResultsDirectory = artifactsPath });
+     //DotNetCoreTest(testProjectPath, new DotNetCoreTestSettings { Logger = (automated == "true") ? "Appveyor" : "trx", ResultsDirectory = artifactsPath });
+     DotNetCoreTest(testProjectPath, new DotNetCoreTestSettings { Logger = "trx", ResultsDirectory = artifactsPath });
 });
 
 Task("Package")
@@ -42,8 +43,8 @@ Task("Package")
 	DotNetCorePack(nugetProjectPath, new DotNetCorePackSettings 
     { 
         OutputDirectory = artifactsPath, 
-        Configuration = configuration, 
-        ArgumentCustomization = args=>args.Append("/p:Version=" + buildversion)
+        Configuration = configuration//, 
+        //ArgumentCustomization = args=>args.Append("/p:Version=" + buildversion)
     });
 });
 
