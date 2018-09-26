@@ -1,4 +1,5 @@
 var target = Argument("target", "Default");
+var automated = Argument("automated", "false");
 var configuration = Argument("configuration", "Release");
 var buildversion = Argument("buildversion", "0.9.0");
 
@@ -32,7 +33,7 @@ Task("Restore")
 Task("Test")
     .Does(() =>
 {
-     DotNetCoreTest(testProjectPath, new DotNetCoreTestSettings { Logger = "trx", ResultsDirectory = artifactsPath });
+     DotNetCoreTest(testProjectPath, new DotNetCoreTestSettings { Logger = (automated == "true") ? "Appveyor" : "trx", ResultsDirectory = artifactsPath });
 });
 
 Task("Package")

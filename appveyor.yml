@@ -1,8 +1,9 @@
 version: '{build}'
 image: Visual Studio 2017
 skip_tags: true
+test: off
 build_script:
-- ps: .\build.ps1
+- ps: .\build.ps1 --automated=true
 artifacts:
 - path: artifacts\*.nupkg
   name: NuGet Package
