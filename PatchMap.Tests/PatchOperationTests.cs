@@ -36,6 +36,29 @@ namespace PatchMap.Tests
         }
 
         [TestMethod]
+        public void ManualCreate()
+        {
+            var model = new PatchableItem
+            {
+                IntValue = 2,
+                CantUpdateInOnePatch = new PatchableStandardSubItem { Code = "A" }
+            };
+            var op1 = PatchOperation.Create(model, i => i.IntValue);
+            var op2 = PatchOperation.Create(model, i => i.CantUpdateInOnePatch.Code);
+            var op3 = PatchOperation.Create(model, i => i.CantUpdateInOnePatch.Child.Code);
+            var op4 = PatchOperation.Create(null as PatchableItem, i => i.IntValue);
+
+            Assert.AreEqual("IntValue", op1.PropertyTree.ToString());
+            Assert.AreEqual(2, op1.Value);
+            Assert.AreEqual("CantUpdateInOnePatch/Code", op2.PropertyTree.ToString());
+            Assert.AreEqual("A", op2.Value);
+            Assert.AreEqual("CantUpdateInOnePatch/Child/Code", op3.PropertyTree.ToString());
+            Assert.AreEqual(null, op3.Value);
+            Assert.AreEqual("IntValue", op4.PropertyTree.ToString());
+            Assert.AreEqual(0, op4.Value);
+        }
+
+        [TestMethod]
         public void ObjectParse_Basic()
         {
             var stringList = new List<string> { "abc" };

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace PatchMap
@@ -9,12 +10,53 @@ namespace PatchMap
     public class PatchOperation
     {
         public PatchOperationTypes Operation { get; set; }
-
         public JsonPatch JsonPatch { get; set; }
         public bool JsonPatchValueParsed { get; set; }
+        public PatchOperationPropertyTree PropertyTree { get; set; }
         public object Value { get; set; }
 
-        public PatchOperationPropertyTree PropertyTree { get; set; }
+        public static PatchOperation Create<T, Y>(T source, Expression<Func<T, Y>> field)
+        {
+            var properties = new Stack<PatchOperationPropertyTree>();
+            var memberExp = field.Body as MemberExpression ?? (field.Body as UnaryExpression).Operand as MemberExpression;
+            while (memberExp != null)
+            {
+                properties.Push(new PatchOperationPropertyTree { Property = (PropertyInfo)memberExp.Member });
+                memberExp = memberExp.Expression as MemberExpression;
+            }
+
+            var operation = new PatchOperation();
+            PatchOperationPropertyTree currentProperty = null;
+            object currentValue = source;
+            while (properties.Any())
+            {
+                var prop = properties.Pop();
+
+                if (currentProperty == null)
+                {
+                    operation.PropertyTree = prop;
+                }
+                else
+                {
+                    currentProperty.Next = prop;
+                }
+
+                currentProperty = prop;
+                if (currentValue == null)
+                {
+                    currentValue = prop.Property.PropertyType.IsValueType
+                        ? Activator.CreateInstance(prop.Property.PropertyType)
+                        : null;
+                }
+                else
+                {
+                    currentValue = prop.Property.GetValue(currentValue);
+                }
+            }
+
+            operation.Value = currentValue;
+            return operation;
+        }
 
         public override string ToString()
         {

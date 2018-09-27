@@ -12,7 +12,7 @@ namespace PatchMap
 
         public override string ToString()
         {
-            return Property?.Name
+            return Property.Name
                 + (!String.IsNullOrEmpty(CollectionKey) ? $"[{CollectionKey}]" : "")
                 + ((Next != null) ? "/" + Next : "");
         }

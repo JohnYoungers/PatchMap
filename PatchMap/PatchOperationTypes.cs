@@ -2,8 +2,8 @@
 {
     public enum PatchOperationTypes
     {
-        add,
         replace,
+        add,
         remove
     }
 }
