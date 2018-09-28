@@ -115,9 +115,9 @@ namespace PatchMap
                 try
                 {
                     //Convert value to null if it's an empty string and the target type is not string
-                    var objValue = (patch.value is string && conversionType != typeof(string) && String.IsNullOrEmpty(patch.value as string)) ? null : patch.value;
+                    var objValue = (patch.value is string && conversionType != typeof(string) && string.IsNullOrEmpty(patch.value as string)) ? null : patch.value;
 
-                    result.Value = (objValue == null) ? null : Convert.ChangeType(objValue, conversionType);
+                    result.Value = (objValue == null && currentType != conversionType) ? null : Convert.ChangeType(objValue, conversionType);
                 }
                 catch (Exception ex) when (ex is FormatException || ex is InvalidCastException || ex is ArithmeticException)
                 {

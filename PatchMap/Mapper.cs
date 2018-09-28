@@ -1,0 +1,159 @@
+﻿using PatchMap.Mapping;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+
+namespace PatchMap
+{
+    public delegate void PostMapMethod<in TTarget, in TContext>(TTarget target, TContext ctx, PatchOperation update);
+    public delegate bool MapTargetIsRequiredMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation);
+    public delegate FieldMapValueValidResult MapTargetValueIsValidMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object value);
+    public delegate bool MapTargetHasChangedMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object originalValue, object newValue);
+
+    public class Mapper<TSource, TTarget, TContext> : CompoundMap<TSource, TTarget, TContext>
+    {
+        public MapTargetHasChangedMethod<TTarget, TContext> MapTargetHasChanged { get; set; }
+            = (target, ctx, map, operation, oldValue, newValue) => !Equals(oldValue, newValue);
+        public MapTargetIsRequiredMethod<TTarget, TContext> MapTargetIsRequired { get; set; }
+            = (target, ctx, map, operation) => false;
+        public MapTargetValueIsValidMethod<TTarget, TContext> MapTargetValueIsValid { get; set; }
+            = (target, ctx, map, operation, value) => new FieldMapValueValidResult { IsValid = true };
+
+        public MapResult<TTarget, TContext> Map(IEnumerable<PatchOperation> operations, TTarget target, TContext ctx)
+        {
+            var result = new MapResult<TTarget, TContext>();
+
+            bool mapProcessedWithChanges(FieldMap<TTarget, TContext> map)
+            {
+                var operation = operations.FirstOrDefault(op =>
+                {
+                    var prop = op.PropertyTree;
+                    for (var i = 0; i < map.SourceField.Count; i++)
+                    {
+                        var sourceField = map.SourceField[i];
+
+                        if (prop == null || sourceField.DeclaringType != prop.Property.DeclaringType || sourceField.Name != prop.Property.Name)
+                        {
+                            return false;
+                        }
+                        if (i < map.SourceField.Count - 1)
+                        {
+                            prop = prop.Next;
+                        }
+                    }
+
+                    if ((!map.CollectionItem && !string.IsNullOrEmpty(prop.CollectionKey))
+                        || (map.CollectionItem && string.IsNullOrEmpty(prop.CollectionKey)))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                if (operation != null)
+                {
+                    if (operation.JsonPatch != null && !operation.JsonPatchValueParsed)
+                    {
+                        result.AddFailure(map, operation, MapResultFailureType.JsonPatchValueNotParsable);
+                    }
+                    else if (map.Enabled == null || map.Enabled(target, ctx))
+                    {
+                        object originalValue = null;
+                        var processedValue = map.ConvertValue(target, operation.Value, ctx);
+
+                        if (!processedValue.Succeeded)
+                        {
+                            result.AddFailure(map, operation, MapResultFailureType.ValueConversionFailed, processedValue.FailureReason);
+                            return false;
+                        }
+                        else
+                        {
+                            bool hasChanges = false;
+                            bool valueIsMissing = processedValue.Value == null || (processedValue.Value is string s && string.IsNullOrEmpty(s));
+                            bool? isRequiredFromContext = (valueIsMissing && map.Required != null)
+                                ? map.Required(target, ctx)
+                                : (bool?)null;
+                            bool isTargetRequired = valueIsMissing && MapTargetIsRequired(target, ctx, map, operation);
+
+                            if (isRequiredFromContext == true || (isRequiredFromContext == null && isTargetRequired))
+                            {
+                                result.AddFailure(map, operation, MapResultFailureType.Required);
+                            }
+                            else if (map.TargetField.Any())
+                            {
+                                var valueCheck = MapTargetValueIsValid(target, ctx, map, operation, processedValue.Value);
+                                if (valueCheck.IsValid)
+                                {
+                                    object obj = target;
+                                    for (var i = 0; i < map.TargetField.Count; i++)
+                                    {
+                                        var pi = map.TargetField[i];
+                                        if (i < map.TargetField.Count - 1)
+                                        {
+                                            obj = pi.GetValue(obj);
+
+                                            if (obj == null)
+                                            {
+                                                throw new ArgumentException($"Could not set value for {pi.Name} on {pi.PropertyType.Name} because object was null");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            originalValue = pi.GetValue(obj);
+                                            pi.SetValue(obj, processedValue.Value);
+                                        }
+                                    }
+
+                                    hasChanges = MapTargetHasChanged(target, ctx, map, operation, originalValue, processedValue.Value);
+                                }
+                                else
+                                {
+                                    result.AddFailure(map, operation, MapResultFailureType.ValueIsNotValid, valueCheck.FailureReason);
+                                }
+                            }
+
+                            if (!map.TargetField.Any() || hasChanges)
+                            {
+                                map.PostMap?.Invoke(target, ctx, operation);
+                            }
+
+                            return hasChanges;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            bool routeMap(Map<TTarget, TContext> map)
+            {
+                switch (map)
+                {
+                    case FieldMap<TTarget, TContext> patchMap:
+                        return mapProcessedWithChanges(patchMap);
+                    case CompoundMap<TSource, TTarget, TContext> compoundMap:
+                        var mapResults = compoundMap.Mappings.Select(m => routeMap(m)).ToArray();
+                        var hasChanges = mapResults.Any(changed => changed);
+                        if (hasChanges)
+                        {
+                            compoundMap.PostMap?.Invoke(target, ctx, null);
+                        }
+
+                        return hasChanges;
+                    default:
+                        return false;
+                }
+            }
+
+            foreach (var map in Mappings)
+            {
+                routeMap(map);
+            }
+
+            return result;
+        }
+    }
+}

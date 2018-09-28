@@ -19,6 +19,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "intvalue", value = "wrong" },
                 new JsonPatch { op = PatchOperationTypes.replace, path = "MustUpdateInOnePatch", value = "wrong" },
                 new JsonPatch { op = PatchOperationTypes.replace, path = "intvalue", value = long.MaxValue },
+                new JsonPatch { op = PatchOperationTypes.replace, path = "intvalue", value = null }
             };
 
             var operations = patches.ToPatchOperations<PatchableItem>();
@@ -26,6 +27,7 @@ namespace PatchMap.Tests
             Assert.AreEqual(patches[0], operations[0].JsonPatch);
             Assert.AreEqual(false, operations[1].JsonPatchValueParsed);
             Assert.AreEqual(false, operations[2].JsonPatchValueParsed);
+            Assert.AreEqual(false, operations[3].JsonPatchValueParsed);
         }
 
         [TestMethod]
