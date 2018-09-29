@@ -2,7 +2,7 @@
 [![NuGet](http://img.shields.io/nuget/v/PatchMap.svg)](https://www.nuget.org/packages/PatchMap/)
 
 # PatchMap
-A framework for .Net to handle updating entities from a view model at the field level: Inserts, Updates, and individual field updates can all be handled with one implementation.
+A framework for .Net intended to assist in handling API calls, similar to these listed below, with a single code path:
 
 ```
 POST /api/Users
