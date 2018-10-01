@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace EFCoreWebApi
 {
-    public class BaseCommand
+    public abstract class BaseCommand
     {
         protected ExampleContext DbContext { get; private set; }
 
@@ -23,13 +23,13 @@ namespace EFCoreWebApi
 
         protected List<TTarget> FilterToList<TSource, TTarget>(IQueryable<TSource> source, Func<IQueryable, IQueryable> filter, Expression<Func<TSource, TTarget>> map) 
             where TSource : class where TTarget : class 
-            => FilterPrep(source, filter, map).ToList();
+            => FilterAndMap(source, filter, map).ToList();
 
         protected TTarget FilterToFirstOrDefault<TSource, TTarget>(IQueryable<TSource> source, Expression<Func<TSource, TTarget>> map, bool ensureExists = true) 
             where TSource : class 
             where TTarget : class
         {
-            var item = FilterPrep(source, null, map).FirstOrDefault();
+            var item = FilterAndMap(source, null, map).FirstOrDefault();
             if (ensureExists)
             {
                 EnsureExists(item);
@@ -37,7 +37,7 @@ namespace EFCoreWebApi
 
             return item;
         }
-        private IQueryable<VM> FilterPrep<T, VM>(IQueryable<T> source, Func<IQueryable, IQueryable> filter, Expression<Func<T, VM>> map)
+        private IQueryable<VM> FilterAndMap<T, VM>(IQueryable<T> source, Func<IQueryable, IQueryable> filter, Expression<Func<T, VM>> map)
         {
             var query = source;
             if (filter != null)

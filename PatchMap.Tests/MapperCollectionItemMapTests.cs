@@ -26,11 +26,11 @@ namespace PatchMap.Tests
             fullCollectionChanged = 0;
             itemChanged = 0;
 
-            mapper.AddMap(vm => vm.StringCollection).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation update) =>
+            mapper.AddMap(vm => vm.StringCollection).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
             {
                 fullCollectionChanged++;
             });
-            mapper.AddMap(vm => vm.StringCollection).IsCollectionItem().HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation update) =>
+            mapper.AddMap(vm => vm.StringCollection).IsCollectionItem().HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
             {
                 itemChanged++;
             });

@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCoreWebApi.Web", "EFCoreWebApi.Web\EFCoreWebApi.Web.csproj", "{7988F7A1-0856-4040-B7BC-BEECE3073486}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCoreWebApi.Web", "EFCoreWebApi.Web\EFCoreWebApi.Web.csproj", "{7988F7A1-0856-4040-B7BC-BEECE3073486}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCoreWebApi", "EFCoreWebApi\EFCoreWebApi.csproj", "{E4274FF4-227A-4442-8923-FCB7FD8759B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCoreWebApi", "EFCoreWebApi\EFCoreWebApi.csproj", "{E4274FF4-227A-4442-8923-FCB7FD8759B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCoreWebApi.Data", "EFCoreWebApi.Data\EFCoreWebApi.Data.csproj", "{DD338990-E0DA-4EF3-B06E-5195AF79A9CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCoreWebApi.Tests", "EFCoreWebApi.Tests\EFCoreWebApi.Tests.csproj", "{79BB4437-F500-43AC-B226-0B5BCA661DE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{E4274FF4-227A-4442-8923-FCB7FD8759B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4274FF4-227A-4442-8923-FCB7FD8759B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4274FF4-227A-4442-8923-FCB7FD8759B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD338990-E0DA-4EF3-B06E-5195AF79A9CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD338990-E0DA-4EF3-B06E-5195AF79A9CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD338990-E0DA-4EF3-B06E-5195AF79A9CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD338990-E0DA-4EF3-B06E-5195AF79A9CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79BB4437-F500-43AC-B226-0B5BCA661DE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79BB4437-F500-43AC-B226-0B5BCA661DE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79BB4437-F500-43AC-B226-0B5BCA661DE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79BB4437-F500-43AC-B226-0B5BCA661DE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

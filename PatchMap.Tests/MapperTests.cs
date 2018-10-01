@@ -33,12 +33,17 @@ namespace PatchMap.Tests
             mapper.AddMap(vm => vm.Address.AddressLine1, db => db.AddressLine1);
             mapper.AddMap(vm => vm.AssociatedEntityName, db => db.AssociatedEntity.Name);
 
+            Assert.AreEqual("Id", (mapper.Mappings[0] as FieldMap<SampleEntity, SampleContext>).Label);
+            Assert.AreEqual("Multi Word Property", (mapper.Mappings[1] as FieldMap<SampleEntity, SampleContext>).Label);
+
             source.Id = 5;
             source.MultiWordProperty = "ABC";
             source.Address = new AddressViewModel { AddressLine1 = "DEF" };
             source.AssociatedEntityName = "GHI";
-            var results = mapper.Map(source.ToPatchOperations(), target, new SampleContext());
+            var ctx = new SampleContext();
+            var results = mapper.Map(source.ToPatchOperations(), target, ctx);
 
+            Assert.AreEqual(ctx, results.Context);
             Assert.AreEqual(true, results.Succeeded);
             Assert.AreEqual(5, target.Id);
             Assert.AreEqual("ABC", target.Multiwordproperty);
@@ -164,11 +169,11 @@ namespace PatchMap.Tests
             source.Id = 1;
             target.Id = 1;
 
-            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation update) =>
+            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
             {
                 t.Id = 6;
             });
-            mapper.AddMap(vm => vm.MultiWordProperty).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation update) =>
+            mapper.AddMap(vm => vm.MultiWordProperty).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
             {
                 t.ParentId = 10;
             });
@@ -193,7 +198,7 @@ namespace PatchMap.Tests
             source.Id = 1;
             target.Id = 1;
 
-            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation update) =>
+            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
             {
                 t.Id = 6;
             });

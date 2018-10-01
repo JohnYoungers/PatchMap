@@ -6,6 +6,7 @@ using EFCoreWebApi.Blogs;
 using EFCoreWebApi.Data;
 using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Mvc;
+using PatchMap;
 
 namespace EFCoreWebApi.Web.Controllers
 {
@@ -27,13 +28,21 @@ namespace EFCoreWebApi.Web.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Insert(BlogViewModel blog)
         {
+            new BlogPatchCommand(DbContext).Execute(null, blog.ToPatchOperations());
         }
 
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public void Update(int id, BlogViewModel blog)
         {
+            new BlogPatchCommand(DbContext).Execute(id, blog.ToPatchOperations());
+        }
+
+        [HttpPatch("{id}")]
+        public void Patch(int id, List<JsonPatch> patches)
+        {
+            new BlogPatchCommand(DbContext).Execute(id, patches.ToPatchOperations<BlogViewModel>());
         }
     }
 }

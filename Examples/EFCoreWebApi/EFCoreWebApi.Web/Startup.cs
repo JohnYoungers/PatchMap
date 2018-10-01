@@ -37,6 +37,7 @@ namespace EFCoreWebApi.Web
                 options.Filters.Add(new VersionResultFilter());
                 options.Filters.Add(new ODataResultFilter());
                 options.Filters.Add(new ItemNotFoundExceptionFilter());
+                options.Filters.Add(new SuccessCodeResultFilter());
             }).AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
@@ -62,7 +63,7 @@ namespace EFCoreWebApi.Web
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.Database.EnsureDeleted();
+                //context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
         }

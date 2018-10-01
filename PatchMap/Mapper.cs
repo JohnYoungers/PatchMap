@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PatchMap
 {
-    public delegate void PostMapMethod<in TTarget, in TContext>(TTarget target, TContext ctx, PatchOperation update);
+    public delegate void PostMapMethod<in TTarget, in TContext>(TTarget target, TContext ctx, PatchOperation operation);
     public delegate bool MapTargetIsRequiredMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation);
     public delegate FieldMapValueValidResult MapTargetValueIsValidMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object value);
     public delegate bool MapTargetHasChangedMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object originalValue, object newValue);
@@ -23,7 +23,7 @@ namespace PatchMap
 
         public MapResult<TTarget, TContext> Map(IEnumerable<PatchOperation> operations, TTarget target, TContext ctx)
         {
-            var result = new MapResult<TTarget, TContext>();
+            var result = new MapResult<TTarget, TContext> { Context = ctx };
 
             bool mapProcessedWithChanges(FieldMap<TTarget, TContext> map)
             {
@@ -76,7 +76,7 @@ namespace PatchMap
                             bool? isRequiredFromContext = (valueIsMissing && map.Required != null)
                                 ? map.Required(target, ctx)
                                 : (bool?)null;
-                            bool isTargetRequired = valueIsMissing && MapTargetIsRequired(target, ctx, map, operation);
+                            bool isTargetRequired = valueIsMissing && map.TargetField.Any() && MapTargetIsRequired(target, ctx, map, operation);
 
                             if (isRequiredFromContext == true || (isRequiredFromContext == null && isTargetRequired))
                             {
@@ -148,10 +148,7 @@ namespace PatchMap
                 }
             }
 
-            foreach (var map in Mappings)
-            {
-                routeMap(map);
-            }
+            routeMap(this);
 
             return result;
         }

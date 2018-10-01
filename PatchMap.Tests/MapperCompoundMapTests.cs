@@ -34,11 +34,11 @@ namespace PatchMap.Tests
                 {
                     cm2.AddMap(vm => vm.Address.AddressLine1, db => db.AddressLine1);
                     cm2.AddMap(vm => vm.Address.City, db => db.AddressCity);
-                }, (SampleEntity t, SampleContext ctx, PatchOperation update) =>
+                }, (SampleEntity t, SampleContext ctx, PatchOperation operation) =>
                 {
                     addressChanged++;
                 });
-            }, (SampleEntity t, SampleContext ctx, PatchOperation update) =>
+            }, (SampleEntity t, SampleContext ctx, PatchOperation operation) =>
             {
                 anyCompoundItemChanged++;
             });

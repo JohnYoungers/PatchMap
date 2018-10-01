@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LinqKit;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
@@ -22,14 +23,18 @@ namespace EFCoreWebApi.Blogs.Posts
 
     public class PostViewModel : PostSummaryViewModel
     {
+        public BlogSummaryViewModel Blog { get; set; }
         public string Content { get; set; }
 
         public new static Expression<Func<Data.Post, PostViewModel>> Map()
         {
+            var blogMap = BlogSummaryViewModel.Map();
+
             return i => new PostViewModel
             {
                 Title = i.Title,
                 Created = i.DateCreated,
+                Blog = blogMap.Invoke(i.Blog),
                 Content = i.Content
             };
         }

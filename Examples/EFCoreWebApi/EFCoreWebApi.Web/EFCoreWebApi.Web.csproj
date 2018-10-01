@@ -21,4 +21,10 @@
     <ProjectReference Include="..\EFCoreWebApi\EFCoreWebApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="PatchMap">
+      <HintPath>..\..\PatchMap.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

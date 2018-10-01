@@ -20,10 +20,10 @@ namespace PatchMap.Mapping
 
     public class FieldMap<TTarget, TContext> : Map<TTarget, TContext>
     {
+        public List<PropertyInfo> SourceField { get; protected set; } = new List<PropertyInfo>();
+        public List<PropertyInfo> TargetField { get; protected set; } = new List<PropertyInfo>();
         public string Label { get; protected set; }
         protected internal bool CollectionItem { get; protected set; }
-        protected internal List<PropertyInfo> SourceField { get; protected set; } = new List<PropertyInfo>();
-        protected internal List<PropertyInfo> TargetField { get; protected set; } = new List<PropertyInfo>();
         protected internal EnabledMethod<TTarget, TContext> Enabled { get; protected set; }
         protected internal RequiredMethod<TTarget, TContext> Required { get; protected set; }
         protected internal ConversionMethod<TTarget, TContext> Converter { get; protected set; }
