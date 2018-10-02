@@ -15,16 +15,32 @@ namespace EFCoreWebApi.Web.Filters
             {
                 if (objResult.Value == null)
                 {
-                    context.HttpContext.Response.StatusCode = StatusCodes.Status204NoContent;
+                    context.Result = new NoContentResult();
                 }
-                else if (context.HttpContext.Request.Method == HttpMethods.Post)
+                else if (objResult.Value is PatchCommandResult patchCommandResult)
                 {
-                    context.HttpContext.Response.StatusCode = StatusCodes.Status201Created;
+                    var entity = patchCommandResult.GetEntity();
+                    if (!patchCommandResult.Succeeded)
+                    {
+                        context.Result = new BadRequestObjectResult(patchCommandResult.ValidationResults);
+                    }
+                    if (patchCommandResult.IsNew)
+                    {
+                        context.Result = new CreatedResult($"{context.HttpContext.Request.Path}/{patchCommandResult.EntityLocationId}", entity);
+                    }
+                    else if (entity != null)
+                    {
+                        context.Result = new OkObjectResult(entity);
+                    }
+                    else
+                    {
+                        context.Result = new NoContentResult();
+                    }
                 }
             }
             else if (context.Result is EmptyResult)
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status204NoContent;
+                context.Result = new NoContentResult();
             }
         }
 

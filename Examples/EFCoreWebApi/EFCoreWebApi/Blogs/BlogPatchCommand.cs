@@ -14,6 +14,7 @@ namespace EFCoreWebApi.Blogs
         {
             InitializeMapper();
             mapper.AddMap(vm => vm.Name, db => db.Name).HasPostMap(NamePostMap);
+            mapper.AddMap(vm => vm.Url, db => db.Url);
         }
 
         private static void NamePostMap(Blog target, BaseContext ctx, PatchOperation operation)
@@ -37,7 +38,7 @@ namespace EFCoreWebApi.Blogs
             return GeneratePatchResult(results, () =>
             {
                 DbContext.SaveChanges();
-                return new BlogViewModel();
+                return (isNew, dbItem.BlogId.ToString(), BlogViewModel.Map().Invoke(dbItem));
             });
         }
     }
