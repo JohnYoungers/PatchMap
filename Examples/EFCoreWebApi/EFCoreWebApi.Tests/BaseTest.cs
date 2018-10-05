@@ -20,7 +20,7 @@ namespace EFCoreWebApi.Tests
             using (var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.InitializeDatabase();
+                context.InitializeDatabase(true);
             }
         }
 
@@ -31,6 +31,11 @@ namespace EFCoreWebApi.Tests
         {
             scope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
             dbContext = scope.ServiceProvider.GetRequiredService<ExampleContext>();
+        }
+
+        public void DatesAreSimilar(DateTimeOffset expected, DateTimeOffset actual)
+        {
+            Assert.IsTrue(Math.Abs(expected.Subtract(actual).Seconds) < 5);
         }
 
         public void Dispose()

@@ -38,6 +38,13 @@ namespace EFCoreWebApi.Data
                 DateCreated = new DateTimeOffset(new DateTime(2018, 6, 1)),
                 Title = "First Post",
                 Content = "This is the first post!"
+            }, new Post
+            {
+                BlogId = 1,
+                PostId = 2,
+                DateCreated = new DateTimeOffset(new DateTime(2018, 7, 1)),
+                Title = "Second Post",
+                Content = "This is the second post!"
             });
 
             modelBuilder.Entity<Tag>().HasKey(c => new { c.BlogId, c.Name });
@@ -58,7 +65,12 @@ namespace EFCoreWebApi.Data
 
             if (dropExisting)
             {
-                Blogs.FirstOrDefault(b => b.BlogId == 1).PromotedPostId = 1;
+                var dbBlog = Blogs.FirstOrDefault(b => b.BlogId == 1);
+                dbBlog.PromotedPostId = 1;
+
+                var dbPost = Posts.FirstOrDefault(p => p.BlogId == 1 && p.PostId == 1);
+                dbPost.UpdatedPostId = 2;
+                dbPost.UpdatedAsOfDate = new DateTimeOffset(new DateTime(2018, 10, 1));
 
                 SaveChanges();
             }

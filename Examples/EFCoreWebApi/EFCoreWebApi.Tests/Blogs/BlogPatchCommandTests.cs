@@ -13,7 +13,7 @@ namespace EFCoreWebApi.Tests.Blogs
     public class BlogPatchCommandTests : BaseTest
     {
         [TestMethod]
-        public void Invalid()
+        public void Validates()
         {
             var blog = new BlogViewModel { };
             var results = new BlogPatchCommand(dbContext).Execute(null, blog.ToPatchOperations());

@@ -42,7 +42,7 @@ namespace EFCoreWebApi.Blogs
                 Url = i.Url,
                 Tags = i.Tags.OrderBy(t => t.Name).Select(t => t.Name).ToList(),
                 Posts = i.Posts.OrderByDescending(p => p.DateCreated).Select(p => postMapper.Invoke(p)).ToList(),
-                PromotedPost = i.PromotedPostId != null ? postMapper.Invoke(i.PromotedPost) : null
+                PromotedPost = i.PromotedPostId == null ? null : postMapper.Invoke(i.PromotedPost)
             };
         }
     }

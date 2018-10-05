@@ -39,9 +39,13 @@ namespace EFCoreWebApi.Blogs.Posts
         public BlogSummaryViewModel Blog { get; set; }
         public string Content { get; set; }
 
-        public new static Expression<Func<Data.Post, PostViewModel>> Map()
+        public PostSummaryViewModel UpdatedPost { get; set; }
+        public DateTimeOffset? UpdatedAsOfDate { get; set; }
+
+        public new static Expression<Func<Post, PostViewModel>> Map()
         {
             var blogMap = BlogSummaryViewModel.Map();
+            var postMap = PostSummaryViewModel.Map();
 
             return i => new PostViewModel
             {
@@ -49,7 +53,9 @@ namespace EFCoreWebApi.Blogs.Posts
                 Title = i.Title,
                 Created = i.DateCreated,
                 Blog = blogMap.Invoke(i.Blog),
-                Content = i.Content
+                Content = i.Content,
+                UpdatedPost = (i.UpdatedPostId == null) ? null : postMap.Invoke(i.UpdatedPost),
+                UpdatedAsOfDate = i.UpdatedAsOfDate
             };
         }
     }
