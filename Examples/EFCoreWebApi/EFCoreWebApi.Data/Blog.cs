@@ -17,5 +17,8 @@ namespace EFCoreWebApi.Data
 
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Post> Posts { get; set; } = new List<Post>();
+
+        public int? PromotedPostId { get; set; }
+        public Post PromotedPost { get; set; }
     }
 }

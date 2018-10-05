@@ -7,7 +7,6 @@ using System.Text;
 
 namespace PatchMap
 {
-    public delegate void PostMapMethod<in TTarget, in TContext>(TTarget target, TContext ctx, PatchOperation operation);
     public delegate bool MapTargetIsRequiredMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation);
     public delegate FieldMapValueValidResult MapTargetValueIsValidMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object value);
     public delegate bool MapTargetHasChangedMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object originalValue, object newValue);
@@ -117,7 +116,7 @@ namespace PatchMap
 
                             if (!map.TargetField.Any() || hasChanges)
                             {
-                                map.PostMap?.Invoke(target, ctx, operation);
+                                map.PostMap?.Invoke(target, ctx, map, operation);
                             }
 
                             return hasChanges;
@@ -139,7 +138,7 @@ namespace PatchMap
                         var hasChanges = mapResults.Any(changed => changed);
                         if (hasChanges)
                         {
-                            compoundMap.PostMap?.Invoke(target, ctx, null);
+                            compoundMap.PostMap?.Invoke(target, ctx);
                         }
 
                         return hasChanges;

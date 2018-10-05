@@ -36,21 +36,45 @@ namespace EFCoreWebApi.Tests.Blogs
             var blog = new BlogViewModel
             {
                 Name = $"Blog " + Generator.Id<string>(),
-                Url = $"Http://www.{Generator.Id<string>()}.org"
+                Url = $"Http://www.{Generator.Id<string>()}.org",
+                Tags = new List<string> { "A", "B", "C" }
             };
             var results = new BlogPatchCommand(dbContext).Execute(null, blog.ToPatchOperations());
 
             Assert.IsTrue(results.Succeeded);
             Assert.AreEqual(true, results.IsNew);
             Assert.AreEqual(nextId.ToString(), results.EntityLocationId);
-            Assert.AreEqual(blog.Name, results.Entity.Name);
-            Assert.AreEqual(blog.Url, results.Entity.Url);
+
+            var refreshedBlog = new BlogGetCommand(dbContext).Execute(results.Entity.Id);
+            Assert.AreEqual(blog.Name, refreshedBlog.Name);
+            Assert.AreEqual(blog.Url, refreshedBlog.Url);
+            CollectionAssert.AreEqual(new[] { "A", "B", "C" }, refreshedBlog.Tags);
         }
 
         [TestMethod]
         public void Update_NotFound()
         {
             Assert.ThrowsException<ItemNotFoundException>(() => new BlogPatchCommand(dbContext).Execute(111111, new BlogViewModel().ToPatchOperations()));
+        }
+
+        [TestMethod]
+        public void Updates()
+        {
+            var dbBlog = dbContext.Blogs.Add(SampleData.Blogs.Generic());
+            dbContext.SaveChanges();
+
+            var blog = new BlogGetCommand(dbContext).Execute(dbBlog.Entity.BlogId);
+            blog.Name = blog.Name + "Updated";
+            blog.Tags = new List<string> { "A", "D" };
+
+            var results = new BlogPatchCommand(dbContext).Execute(dbBlog.Entity.BlogId, blog.ToPatchOperations());
+
+            Assert.IsTrue(results.Succeeded);
+            Assert.AreEqual(false, results.IsNew);
+
+            var refreshedBlog = new BlogGetCommand(dbContext).Execute(results.Entity.Id);
+            Assert.AreEqual(blog.Name, refreshedBlog.Name);
+            CollectionAssert.AreEqual(new[] { "A", "D" }, refreshedBlog.Tags);
         }
     }
 }

@@ -169,11 +169,11 @@ namespace PatchMap.Tests
             source.Id = 1;
             target.Id = 1;
 
-            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
+            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((t, ctx, map, operation) =>
             {
                 t.Id = 6;
             });
-            mapper.AddMap(vm => vm.MultiWordProperty).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
+            mapper.AddMap(vm => vm.MultiWordProperty).HasPostMap((t, ctx, map, operation) =>
             {
                 t.ParentId = 10;
             });
@@ -198,7 +198,7 @@ namespace PatchMap.Tests
             source.Id = 1;
             target.Id = 1;
 
-            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((SampleEntity t, SampleContext ctx, PatchOperation operation) =>
+            mapper.AddMap(vm => vm.Id, db => db.Id).HasPostMap((t, ctx, map, operation) =>
             {
                 t.Id = 6;
             });

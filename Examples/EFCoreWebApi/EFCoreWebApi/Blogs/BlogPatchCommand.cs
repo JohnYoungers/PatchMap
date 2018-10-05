@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EFCoreWebApi.Blogs.Posts;
 using EFCoreWebApi.Data;
 using LinqKit;
 using PatchMap;
+using PatchMap.Mapping;
 
 namespace EFCoreWebApi.Blogs
 {
@@ -13,16 +15,35 @@ namespace EFCoreWebApi.Blogs
         static BlogPatchCommand()
         {
             InitializeMapper();
-            mapper.AddMap(vm => vm.Name, db => db.Name).HasPostMap(NamePostMap);
+            mapper.AddMap(vm => vm.Name, db => db.Name).HasPostMap((target, ctx, map, operation) =>
+            {
+                //You could also do this check at the Converter stage opposed to the PostMap stage
+                //However, the Converter will be run anytime there's a value, whereas PostMap only runs on change
+                if (ctx.DbContext.Blogs.Any(b => b.Name == target.Name && b.BlogId != target.BlogId))
+                {
+                    ctx.AddValidationResult(operation, $"Name of {target.Name} already exists");
+                }
+            });
             mapper.AddMap(vm => vm.Url, db => db.Url);
+            mapper.AddMap(vm => vm.PromotedPost, db => db.PromotedPostId).HasConverter((target, ctx, value) =>
+            {
+                var (match, failureReason) = value.ToEntityConverter().Convert(ctx.DbContext.Posts.Where(p => p.BlogId == target.BlogId && p.PostId == value.Id));
+
+                target.PromotedPost = match;
+                return new FieldMapConversionResult<int?> { Value = match?.PostId, FailureReason = failureReason };
+            });
+
+            //These don't need to be lambdas: you can split them out into their own functions if that's more clear
+            mapper.AddMap(vm => vm.Tags).HasPostMap(PostMapTags);
         }
 
-        private static void NamePostMap(Blog target, BaseContext ctx, PatchOperation operation)
+        private static void PostMapTags(Blog target, BaseContext ctx, FieldMap<Blog, BaseContext> map, PatchOperation operation)
         {
-            if (ctx.DbContext.Blogs.Any(b => b.Name == target.Name && b.BlogId != target.BlogId))
-            {
-                ctx.AddValidationResult(operation, $"Name of {target.Name} already exists");
-            }
+            var tags = operation.Value as List<string> ?? new List<string>();
+
+            target.Tags.RemoveAll(existing => !tags.Any(t => string.Equals(existing.Name, t, StringComparison.CurrentCultureIgnoreCase)));
+            target.Tags.AddRange(tags.Where(t => !target.Tags.Any(existing => string.Equals(existing.Name, t, StringComparison.CurrentCultureIgnoreCase)))
+                                     .Select(t => new Tag { Name = t }));
         }
 
         public BlogPatchCommand(ExampleContext dbContext) : base(dbContext) { }

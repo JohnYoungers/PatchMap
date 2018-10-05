@@ -9,6 +9,7 @@ namespace PatchMap.Mapping
 {
     public delegate FieldMapConversionResult<object> ConversionMethod<in TTarget, in TContext>(TTarget target, TContext ctx, object value);
     public delegate FieldMapConversionResult<TTargetProp> ConversionMethod<in TTarget, in TContext, in TSourceProp, TTargetProp>(TTarget target, TContext ctx, TSourceProp value);
+    public delegate void FieldPostMapMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation);
 
     public delegate bool EnabledMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
     public delegate bool RequiredMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
@@ -27,7 +28,8 @@ namespace PatchMap.Mapping
         protected internal EnabledMethod<TTarget, TContext> Enabled { get; protected set; }
         protected internal RequiredMethod<TTarget, TContext> Required { get; protected set; }
         protected internal ConversionMethod<TTarget, TContext> Converter { get; protected set; }
-
+        protected internal FieldPostMapMethod<TTarget, TContext> PostMap { get; protected set; }
+        
         public FieldMap() { }
 
         public FieldMap(LambdaExpression sourceFieldExp, LambdaExpression targetFieldExp)
@@ -85,7 +87,7 @@ namespace PatchMap.Mapping
             CollectionItem = true;
             return this;
         }
-        public FieldMap<TTarget, TContext> HasPostMap(PostMapMethod<TTarget, TContext> postMap)
+        public FieldMap<TTarget, TContext> HasPostMap(FieldPostMapMethod<TTarget, TContext> postMap)
         {
             PostMap = postMap;
             return this;

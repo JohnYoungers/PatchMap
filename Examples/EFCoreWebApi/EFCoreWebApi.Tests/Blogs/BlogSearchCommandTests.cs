@@ -25,7 +25,10 @@ namespace EFCoreWebApi.Tests.Blogs
 
             Assert.AreEqual(1, item.Posts.Count);
             var post = item.Posts.First();
+            Assert.AreEqual(1, post.Id);
             Assert.AreEqual("First Post", post.Title);
+
+            Assert.AreEqual("First Post", item.PromotedPost.Title);
         }
     }
 }

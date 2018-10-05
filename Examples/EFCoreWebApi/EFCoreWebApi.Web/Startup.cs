@@ -63,8 +63,7 @@ namespace EFCoreWebApi.Web
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                //context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+                context.InitializeDatabase();
             }
         }
     }
