@@ -1,4 +1,5 @@
 ﻿using EFCoreWebApi.Blogs;
+using EFCoreWebApi.Blogs.Posts;
 using EFCoreWebApi.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PatchMap;
@@ -27,6 +28,12 @@ namespace EFCoreWebApi.Tests.Blogs
             blog.Name = "Seed Blog";
             results = new BlogPatchCommand(dbContext).Execute(null, blog.ToPatchOperations());
             results.AssertHasValidationResult("Name", "Name of Seed Blog already exists");
+
+            //Promoted Post is required on update but not on insert
+            Assert.IsTrue(!results.ValidationResults.Any(vr => vr.MemberNames.Any(n => n == "PromotedPost")));
+
+            results = new BlogPatchCommand(dbContext).Execute(1, blog.ToPatchOperations());
+            results.AssertHasValidationResult("PromotedPost", "Promoted Post is required");
         }
 
         [TestMethod]
@@ -43,7 +50,7 @@ namespace EFCoreWebApi.Tests.Blogs
 
             Assert.IsTrue(results.Succeeded);
             Assert.AreEqual(true, results.IsNew);
-            Assert.AreEqual(nextId.ToString(), results.EntityLocationId);
+            Assert.AreEqual(nextId.ToString(), results.EntityId);
 
             var refreshedBlog = new BlogGetCommand(dbContext).Execute(results.Entity.Id);
             Assert.AreEqual(blog.Name, refreshedBlog.Name);
@@ -61,11 +68,13 @@ namespace EFCoreWebApi.Tests.Blogs
         public void Updates()
         {
             var dbBlog = dbContext.Blogs.Add(SampleData.Blogs.Generic());
+            dbBlog.Entity.Posts.Add(new Data.Post { Title = "A", Content = "B", DateCreated = DateTimeOffset.Now });
             dbContext.SaveChanges();
 
             var blog = new BlogGetCommand(dbContext).Execute(dbBlog.Entity.BlogId);
             blog.Name = blog.Name + "Updated";
             blog.Tags = new List<string> { "A", "D" };
+            blog.PromotedPost = new PostSummaryViewModel { Id = dbBlog.Entity.Posts[0].PostId };
 
             var results = new BlogPatchCommand(dbContext).Execute(dbBlog.Entity.BlogId, blog.ToPatchOperations());
 
@@ -75,6 +84,7 @@ namespace EFCoreWebApi.Tests.Blogs
             var refreshedBlog = new BlogGetCommand(dbContext).Execute(results.Entity.Id);
             Assert.AreEqual(blog.Name, refreshedBlog.Name);
             CollectionAssert.AreEqual(new[] { "A", "D" }, refreshedBlog.Tags);
+            Assert.AreEqual("A", refreshedBlog.PromotedPost.Title);
         }
     }
 }

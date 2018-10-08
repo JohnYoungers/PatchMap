@@ -55,7 +55,7 @@ namespace EFCoreWebApi.Tests.Blogs
 
             Assert.IsTrue(results.Succeeded);
             Assert.AreEqual(true, results.IsNew);
-            Assert.AreEqual(nextId.ToString(), results.EntityLocationId);
+            Assert.AreEqual(nextId.ToString(), results.EntityId);
 
             var refreshedPost = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, results.Entity.Id);
             Assert.AreEqual(post.Title, refreshedPost.Title);

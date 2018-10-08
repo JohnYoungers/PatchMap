@@ -31,7 +31,7 @@ namespace EFCoreWebApi.Blogs
 
                 target.PromotedPost = match;
                 return new FieldMapConversionResult<int?> { Value = match?.PostId, FailureReason = failureReason };
-            });
+            }).IsRequired((target, ctx) => !ctx.IsNew);
 
             //These don't need to be lambdas: you can split them out into their own functions if that's more clear
             mapper.AddMap(vm => vm.Tags).HasPostMap(PostMapTags);

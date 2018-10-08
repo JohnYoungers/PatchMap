@@ -9,7 +9,7 @@ namespace EFCoreWebApi
     public class PatchCommandResult
     {
         public bool IsNew { get; set; }
-        public string EntityLocationId { get; set; }
+        public string EntityId { get; set; }
         public List<ValidationResult> ValidationResults { get; set; }
 
         public bool Succeeded => ValidationResults?.Any() != true;

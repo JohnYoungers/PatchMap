@@ -20,7 +20,7 @@ namespace EFCoreWebApi.Tests
             using (var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.InitializeDatabase(true);
+                context.InitializeDatabase();
             }
         }
 

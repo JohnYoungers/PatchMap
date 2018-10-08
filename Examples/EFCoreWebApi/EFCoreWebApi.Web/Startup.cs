@@ -37,7 +37,7 @@ namespace EFCoreWebApi.Web
                 options.Filters.Add(new VersionResultFilter());
                 options.Filters.Add(new ODataResultFilter());
                 options.Filters.Add(new ItemNotFoundExceptionFilter());
-                options.Filters.Add(new SuccessCodeResultFilter());
+                options.Filters.Add(new PatchCommandResultFilter());
             }).AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();

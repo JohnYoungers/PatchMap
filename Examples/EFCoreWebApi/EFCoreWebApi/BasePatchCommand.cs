@@ -83,7 +83,7 @@ namespace EFCoreWebApi
             if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
             {
                 var (isNew, id, entity) = onSuccess();
-                return new PatchCommandResult<T> { IsNew = isNew, EntityLocationId = id, Entity = entity };
+                return new PatchCommandResult<T> { IsNew = isNew, EntityId = id, Entity = entity };
             }
             else
             {
