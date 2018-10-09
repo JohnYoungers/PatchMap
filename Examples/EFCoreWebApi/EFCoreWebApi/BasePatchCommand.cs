@@ -78,11 +78,12 @@ namespace EFCoreWebApi
             };
         }
 
-        protected PatchCommandResult<T> GeneratePatchResult<T>(MapResult<TTarget, TContext> mapResult, Func<T> onSuccess)
+        protected PatchCommandResult<T> GeneratePatchResult<T>(MapResult<TTarget, TContext> mapResult, Func<(bool isNew, string id, T entity)> onSuccess)
         {
             if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
             {
-                return new PatchCommandResult<T> { Entity = onSuccess() };
+                var (isNew, id, entity) = onSuccess();
+                return new PatchCommandResult<T> { IsNew = isNew, EntityId = id, Entity = entity };
             }
             else
             {

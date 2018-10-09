@@ -29,6 +29,7 @@ namespace EFCoreWebApi.Blogs
     {
         public List<string> Tags { get; set; } = new List<string>();
         public List<PostSummaryViewModel> Posts { get; set; } = new List<PostSummaryViewModel>();
+        public PostSummaryViewModel PromotedPost { get; set; }
 
         public new static Expression<Func<Data.Blog, BlogViewModel>> Map()
         {
@@ -40,7 +41,8 @@ namespace EFCoreWebApi.Blogs
                 Name = i.Name,
                 Url = i.Url,
                 Tags = i.Tags.OrderBy(t => t.Name).Select(t => t.Name).ToList(),
-                Posts = i.Posts.OrderByDescending(p => p.DateCreated).Select(p => postMapper.Invoke(p)).ToList()
+                Posts = i.Posts.OrderByDescending(p => p.DateCreated).Select(p => postMapper.Invoke(p)).ToList(),
+                PromotedPost = i.PromotedPostId == null ? null : postMapper.Invoke(i.PromotedPost)
             };
         }
     }

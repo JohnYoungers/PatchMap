@@ -1,3 +1,4 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build status](https://ci.appveyor.com/api/projects/status/d76ll7iouu121c4t?svg=true)](https://ci.appveyor.com/project/jayoungers/patchmap)
 [![NuGet](http://img.shields.io/nuget/v/PatchMap.svg)](https://www.nuget.org/packages/PatchMap/)
 

@@ -23,9 +23,12 @@ namespace EFCoreWebApi.Tests.Blogs
             Assert.AreEqual("http://sample.com", item.Url);
             CollectionAssert.AreEqual(new[] { "Tag 1", "Tag 2" }, item.Tags);
 
-            Assert.AreEqual(1, item.Posts.Count);
-            var post = item.Posts.First();
+            Assert.AreEqual(2, item.Posts.Count);
+            var post = item.Posts.Last();
+            Assert.AreEqual(1, post.Id);
             Assert.AreEqual("First Post", post.Title);
+
+            Assert.AreEqual("First Post", item.PromotedPost.Title);
         }
     }
 }

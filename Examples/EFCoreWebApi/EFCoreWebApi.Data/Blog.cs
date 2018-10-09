@@ -15,7 +15,10 @@ namespace EFCoreWebApi.Data
         [Required, MaxLength(150)]
         public string Url { get; set; }
 
-        public List<Tag> Tags { get; set; }
-        public List<Post> Posts { get; set; }
+        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public List<Post> Posts { get; set; } = new List<Post>();
+
+        public int? PromotedPostId { get; set; }
+        public Post PromotedPost { get; set; }
     }
 }

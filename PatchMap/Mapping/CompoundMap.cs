@@ -5,8 +5,12 @@ using System.Text;
 
 namespace PatchMap.Mapping
 {
+    public delegate void PostMapMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
+
     public class CompoundMap<TSource, TTarget, TContext> : Map<TTarget, TContext>
     {
+        protected internal PostMapMethod<TTarget, TContext> PostMap { get; protected set; }
+
         public List<Map<TTarget, TContext>> Mappings { get; set; } = new List<Map<TTarget, TContext>>();
 
         public FieldMap<TTarget, TContext, TSourceProp, object> AddMap<TSourceProp>(Expression<Func<TSource, TSourceProp>> sourceFieldExp)
@@ -40,6 +44,12 @@ namespace PatchMap.Mapping
             }
 
             return map;
+        }
+
+        public CompoundMap<TSource, TTarget, TContext> HasPostMap(PostMapMethod<TTarget, TContext> postMap)
+        {
+            PostMap = postMap;
+            return this;
         }
     }
 }

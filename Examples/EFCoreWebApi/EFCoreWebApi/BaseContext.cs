@@ -15,7 +15,12 @@ namespace EFCoreWebApi
 
         public void AddValidationResult(PatchOperation operation, string message)
         {
-            ValidationResults.Add(new ValidationResult(message, new[] { operation.PropertyTree.ToString() }));
+            AddValidationResult(operation.PropertyTree.ToString(), message);
+        }
+
+        public void AddValidationResult(string property, string message)
+        {
+            ValidationResults.Add(new ValidationResult(message, new[] { property }));
         }
     }
 }
