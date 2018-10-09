@@ -1,45 +1,45 @@
-﻿using System;
+﻿using EF6AspNetWebApi.Blogs;
+using EF6AspNetWebApi.Data;
+using PatchMap;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using EFCoreAspNetCore.Blogs;
-using EFCoreAspNetCore.Data;
-using Microsoft.AspNet.OData.Query;
-using Microsoft.AspNetCore.Mvc;
-using PatchMap;
+using System.Web;
+using System.Web.Http;
+using System.Web.OData.Query;
 
-namespace EFCoreAspNetCore.Web.Controllers
+namespace EF6AspNetWebApi.Web.Controllers
 {
-    [Route("api/[controller]")]
+    [RoutePrefix("api/blogs")]
     public class BlogsController : BaseController
     {
         public BlogsController(ExampleContext dbContext) : base(dbContext) { }
 
-        [HttpGet]
+        [HttpGet, Route("")]
         public List<BlogViewModel> Search(ODataQueryOptions<Blog> query)
         {
             return new BlogSearchCommand(DbContext).Execute(query.ApplyTo);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet, Route("{id}")]
         public BlogViewModel Get(int id)
         {
             return new BlogGetCommand(DbContext).Execute(id);
         }
 
-        [HttpPost]
+        [HttpPost, Route("")]
         public PatchCommandResult<BlogViewModel> Insert(BlogViewModel blog)
         {
             return new BlogPatchCommand(DbContext).Execute(null, blog.ToPatchOperations());
         }
 
-        [HttpPut("{id}")]
+        [HttpPut, Route("{id}")]
         public PatchCommandResult<BlogViewModel> Update(int id, BlogViewModel blog)
         {
             return new BlogPatchCommand(DbContext).Execute(id, blog.ToPatchOperations());
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch, Route("{id}")]
         public PatchCommandResult<BlogViewModel> Patch(int id, List<JsonPatch> patches)
         {
             return new BlogPatchCommand(DbContext).Execute(id, patches.ToPatchOperations<BlogViewModel>());

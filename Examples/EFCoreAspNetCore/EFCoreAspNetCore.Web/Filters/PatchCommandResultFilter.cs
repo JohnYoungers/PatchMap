@@ -14,7 +14,7 @@ namespace EFCoreAspNetCore.Web.Filters
         {
             if (context.Result is ObjectResult objResult && objResult.Value is PatchCommandResult saveResult)
             {
-                if (saveResult.ValidationResults.Any())
+                if (!saveResult.Succeeded)
                 {
                     context.Result = new BadRequestObjectResult(saveResult.ValidationResults);
                 }
