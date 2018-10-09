@@ -72,6 +72,8 @@ namespace EFCoreAspNetCore.Data
 
                 SaveChanges();
             }
+
+            ExampleContextMetadata.Build(this);
         }
     }
 }
