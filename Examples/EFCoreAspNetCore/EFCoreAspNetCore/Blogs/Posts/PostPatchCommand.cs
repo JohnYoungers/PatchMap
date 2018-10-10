@@ -14,7 +14,6 @@ namespace EFCoreAspNetCore.Blogs.Posts
     {
         static PostPatchCommand()
         {
-            InitializeMapper();
             //Post details can only be set on create
             mapper.AddMap(vm => vm.Title, db => db.Title).IsEnabled((t, ctx) => ctx.IsNew);
             mapper.AddMap(vm => vm.Content, db => db.Content).IsEnabled((t, ctx) => ctx.IsNew);

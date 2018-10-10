@@ -14,7 +14,6 @@ namespace EF6AspNetWebApi.Blogs
     {
         static BlogPatchCommand()
         {
-            InitializeMapper();
             mapper.AddMap(vm => vm.Name, db => db.Name).HasPostMap((target, ctx, map, operation) =>
             {
                 //You could also do this check at the Converter stage opposed to the PostMap stage
