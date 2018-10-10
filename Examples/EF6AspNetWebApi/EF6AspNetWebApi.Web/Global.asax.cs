@@ -1,7 +1,9 @@
 ﻿using EF6AspNetWebApi.Data;
 using EF6AspNetWebApi.Web.Filters;
 using EF6AspNetWebApi.Web.Handlers;
+using EF6AspNetWebApi.Web.Swashbuckle;
 using Newtonsoft.Json.Converters;
+using Swashbuckle.Application;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +39,19 @@ namespace EF6AspNetWebApi.Web
                 config.MessageHandlers.Add(new ODataResultHandler());
 
                 config.Services.Replace(typeof(IHttpControllerActivator), new ServiceActivator(config));
+
+                config.EnableSwagger("swagger/api/{apiVersion}", c =>
+                {
+                    c.SingleApiVersion("v1", "Example Web Api");
+                    c.DescribeAllEnumsAsStrings();
+                    c.PrettyPrint();
+                    c.OperationFilter<SummaryByFunctionNameOperationFilter>();
+                    c.OperationFilter<ODataOperationFilter>();
+                    c.OperationFilter<PatchCommandResultOperationFilter>();
+                }).EnableSwaggerUi("swagger/{*assetPath}", c =>
+                {
+                    c.DisableValidator();
+                });
             });
 
             RouteTable.Routes.Ignore("api/{*anything}");
