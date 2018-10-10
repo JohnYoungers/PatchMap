@@ -2,6 +2,7 @@
 using EF6AspNetWebApi.Web.Filters;
 using EF6AspNetWebApi.Web.Handlers;
 using EF6AspNetWebApi.Web.Swashbuckle;
+using Microsoft.AspNet.OData.Extensions;
 using Newtonsoft.Json.Converters;
 using Swashbuckle.Application;
 using System;
@@ -29,6 +30,8 @@ namespace EF6AspNetWebApi.Web
                 config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
                 config.MapHttpAttributeRoutes();
+
+                config.EnableDependencyInjection();  //For OData parameters
 
                 config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter());
 

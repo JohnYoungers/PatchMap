@@ -1,12 +1,12 @@
 ﻿using EF6AspNetWebApi.Blogs;
 using EF6AspNetWebApi.Data;
+using Microsoft.AspNet.OData.Query;
 using PatchMap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
-using System.Web.OData.Query;
 
 namespace EF6AspNetWebApi.Web.Controllers
 {

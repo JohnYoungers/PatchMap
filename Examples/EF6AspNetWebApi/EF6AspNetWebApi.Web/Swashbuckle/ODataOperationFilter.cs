@@ -13,7 +13,7 @@ namespace EF6AspNetWebApi.Web.Swashbuckle
         {
             if (apiDescription.ParameterDescriptions.Where(p => p.ParameterDescriptor != null)
                                                     .Select(p => p.ParameterDescriptor.ParameterType)
-                                                    .Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(System.Web.OData.Query.ODataQueryOptions<>)))
+                                                    .Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Microsoft.AspNet.OData.Query.ODataQueryOptions<>)))
             {
                 operation.parameters.Add(new Parameter
                 {

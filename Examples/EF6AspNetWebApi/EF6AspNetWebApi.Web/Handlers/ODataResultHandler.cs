@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNet.OData.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.OData.Extensions;
 
 namespace EF6AspNetWebApi.Web.Handlers
 {
