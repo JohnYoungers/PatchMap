@@ -33,6 +33,7 @@ namespace EF6AspNetWebApi.Web
                 config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter());
 
                 config.Filters.Add(new ItemNotFoundExceptionFilterAttribute());
+                config.Filters.Add(new JsonPatchParseExceptionFilterAttribute());
                 config.Filters.Add(new PatchCommandResultFilterAttribute());
                 config.MessageHandlers.Add(new VersionHandler());
                 config.MessageHandlers.Add(new ExposeHeadersHandler());

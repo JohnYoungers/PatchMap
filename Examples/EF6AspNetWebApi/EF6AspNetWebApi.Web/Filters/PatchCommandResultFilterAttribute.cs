@@ -12,7 +12,7 @@ namespace EF6AspNetWebApi.Web.Filters
     {
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
-            if (actionExecutedContext.Response.Content is ObjectContent objResult && objResult.Value is PatchCommandResult saveResult)
+            if (actionExecutedContext.Response?.Content is ObjectContent objResult && objResult.Value is PatchCommandResult saveResult)
             {
                 var request = actionExecutedContext.Request;
                 if (!saveResult.Succeeded)

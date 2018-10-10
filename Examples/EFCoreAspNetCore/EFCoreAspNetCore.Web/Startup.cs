@@ -37,6 +37,7 @@ namespace EFCoreAspNetCore.Web
                 options.Filters.Add(new VersionResultFilter());
                 options.Filters.Add(new ODataResultFilter());
                 options.Filters.Add(new ItemNotFoundExceptionFilter());
+                options.Filters.Add(new JsonPatchParseExceptionFilter());
                 options.Filters.Add(new PatchCommandResultFilter());
             }).AddJsonOptions(options =>
             {

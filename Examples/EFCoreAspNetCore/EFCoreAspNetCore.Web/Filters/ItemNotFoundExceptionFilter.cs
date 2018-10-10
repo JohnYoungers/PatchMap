@@ -1,5 +1,4 @@
 ﻿using EFCoreAspNetCore.Exceptions;
-using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

@@ -75,6 +75,22 @@ namespace EF6AspNetWebApi.Web.Tests.Steps
             Assert.IsTrue(httpContext.Response.Headers.GetValues(header).Any(v => v == value));
         }
 
+        [Then(@"the location header should be standard based on field '(.*)'")]
+        public void ThenTheLocationHeaderShouldBeStandardFromField(string field)
+        {
+            if (httpContext.Response.Headers.TryGetValues("Location", out IEnumerable<string> values))
+            {
+                var location = string.Join(", ", values);
+                var fieldValue = httpContext.ResponseAsJson().SelectToken(field, true).ToString();
+
+                Assert.AreEqual(location, httpContext.Response.RequestMessage.RequestUri.AbsolutePath + "/" + fieldValue);
+            }
+            else
+            {
+                Assert.Fail("Location header is not present");
+            }
+        }
+
         [Then(@"the content type should be '(.*)'")]
         public void ThenTheContentTypeShouldBe(string value)
         {

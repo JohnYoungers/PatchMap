@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.2.1\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
@@ -51,6 +57,7 @@
       <HintPath>..\packages\SpecRun.SpecFlow.2-3-0.1.7.0\lib\net45\SpecRun.SpecFlowPlugin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -90,10 +97,31 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Swagger.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Blogs\BlogSteps.cs" />
+    <Compile Include="Features\Blogs\Get.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Get.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Blogs\Insert.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Insert.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Blogs\Patch.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Patch.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Blogs\Search.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Search.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Blogs\Update.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Update.feature</DependentUpon>
     </Compile>
     <Compile Include="HttpClientLogHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,13 +145,35 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Swagger.feature.cs</LastGenOutput>
     </None>
+    <None Include="Features\Blogs\Get.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Get.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Blogs\Insert.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Insert.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Blogs\Patch.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Patch.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\Blogs\Search.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Search.feature.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
+    <None Include="Features\Blogs\Update.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Update.feature.cs</LastGenOutput>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EF6AspNetWebApi.Data\EF6AspNetWebApi.Data.csproj">
+      <Project>{85D082BD-9311-407F-B9A2-2A1E9D702766}</Project>
+      <Name>EF6AspNetWebApi.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EF6AspNetWebApi.Tests\EF6AspNetWebApi.Tests.csproj">
       <Project>{186de763-ad3a-4410-b69e-bd34ec64b1dd}</Project>
       <Name>EF6AspNetWebApi.Tests</Name>

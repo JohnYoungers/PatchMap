@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PatchMap.Exceptions;
 using PatchMap.Tests.Models;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "badpathvalue", value = null }
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
 
         [TestMethod]
@@ -49,7 +50,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.add, path = "intvalue", value = null }
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
 
         [TestMethod]
@@ -60,7 +61,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.remove, path = "intvalue" }
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
 
         [TestMethod]
@@ -71,7 +72,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.remove, path = "subitems", value = null }
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
 
         [TestMethod]
@@ -82,7 +83,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.remove, path = "subitems/a", value = new PatchableCircularReferenceItem() }
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
 
         [TestMethod]
@@ -93,7 +94,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "CantUpdateInOnePatch", value = new PatchableCircularReferenceItem() },
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
 
         [TestMethod]
@@ -104,7 +105,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "MustUpdateInOnePatch/Code", value = "A" }
             };
 
-            Assert.ThrowsException<ArgumentException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
         }
     }
 }

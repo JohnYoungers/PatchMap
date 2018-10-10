@@ -129,6 +129,7 @@
   <ItemGroup>
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BlogsController.cs" />
+    <Compile Include="Filters\JsonPatchParseExceptionFilterAttribute.cs" />
     <Compile Include="Filters\ItemNotFoundExceptionFilterAttribute.cs" />
     <Compile Include="Filters\PatchCommandResultFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">

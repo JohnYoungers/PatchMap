@@ -15,7 +15,7 @@ namespace EF6AspNetWebApi.Web.Filters
         {
             if (actionExecutedContext.Exception is ItemNotFoundException)
             {
-                actionExecutedContext.Response = actionExecutedContext.Request.CreateErrorResponse(HttpStatusCode.NotFound, actionExecutedContext.Exception.Message);
+                actionExecutedContext.Response = actionExecutedContext.Request.CreateResponse(HttpStatusCode.NotFound, actionExecutedContext.Exception.Message);
             }
         }
     }
