@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF6AspNetWebApi.Tests", "EF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6AspNetWebApi.Web", "EF6AspNetWebApi.Web\EF6AspNetWebApi.Web.csproj", "{A833A734-6315-4B4B-8BF8-267822943432}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF6AspNetWebApi.Web.Tests", "EF6AspNetWebApi.Web.Tests\EF6AspNetWebApi.Web.Tests.csproj", "{95C88875-71BF-4885-9996-A4CA1E163F11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A833A734-6315-4B4B-8BF8-267822943432}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A833A734-6315-4B4B-8BF8-267822943432}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A833A734-6315-4B4B-8BF8-267822943432}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95C88875-71BF-4885-9996-A4CA1E163F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C88875-71BF-4885-9996-A4CA1E163F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C88875-71BF-4885-9996-A4CA1E163F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C88875-71BF-4885-9996-A4CA1E163F11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
