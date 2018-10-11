@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using PatchMap.Exceptions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace PatchMap
                 currentProperty = currentType.GetProperty(part, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                 if (currentProperty == null)
                 {
-                    throw new ArgumentException($"{currentType.Name} does not contain a property named {part}");
+                    throw new JsonPatchParseException(patch, $"{currentType.Name} does not contain a property named {part}");
                 }
 
                 currentType = currentProperty.PropertyType;
@@ -54,11 +55,11 @@ namespace PatchMap
                     {
                         if (patch.value != null)
                         {
-                            throw new ArgumentException($"{patch.op.ToString()} operation should not contain a value");
+                            throw new JsonPatchParseException(patch, $"{patch.op.ToString()} operation should not contain a value");
                         }
                         if (isLastPart())
                         {
-                            throw new ArgumentException($"{patch.op.ToString()} operation is invalid on {currentProperty.Name} without the collection item's key");
+                            throw new JsonPatchParseException(patch, $"{patch.op.ToString()} operation is invalid on {currentProperty.Name} without the collection item's key");
                         }
                     }
 
@@ -71,19 +72,19 @@ namespace PatchMap
                 {
                     if (patch.op != PatchOperationTypes.replace)
                     {
-                        throw new ArgumentException($"{patch.op.ToString()} operation is only valid on collections");
+                        throw new JsonPatchParseException(patch, $"{patch.op.ToString()} operation is only valid on collections");
                     }
 
                     if (currentProperty.GetCustomAttribute(typeof(Attributes.PatchRecursivelyAttribute)) == null)
                     {
                         if (!isLastPart())
                         {
-                            throw new ArgumentException($"{currentProperty.Name} can only be updated in one patch");
+                            throw new JsonPatchParseException(patch, $"{currentProperty.Name} can only be updated in one patch");
                         }
                     }
                     else if (!currentType.IsValueType && currentType != typeof(string) && isLastPart())
                     {
-                        throw new ArgumentException($"{currentProperty.Name} can not be updated in one patch");
+                        throw new JsonPatchParseException(patch, $"{currentProperty.Name} can not be updated in one patch");
                     }
                 }
 
@@ -102,7 +103,7 @@ namespace PatchMap
 
             if (result.PropertyTree == null)
             {
-                throw new ArgumentException($"Path {patch.path} is not valid");
+                throw new JsonPatchParseException(patch, $"Path {patch.path} is not valid");
             }
 
             if (patch.value is JToken)
