@@ -19,11 +19,6 @@ namespace EF6AspNetWebApi.Web
     {
         protected void Application_Start()
         {
-            using (var context = new ExampleContext())
-            {
-                ExampleContextMetadata.Build(context);
-            }
-
             GlobalConfiguration.Configure(config =>
             {
                 //If this is an internal system it shouldn't hurt to let the consumers have a better idea of what's happening

@@ -37,9 +37,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SpecRun.SpecFlowPlugin, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecRun.SpecFlow.2-3-0.1.7.0\lib\net45\SpecRun.SpecFlowPlugin.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -50,12 +47,6 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TechTalk.SpecRun, Version=1.7.0.0, Culture=neutral, PublicKeyToken=d0fc5cc18b3b389b, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecRun.SpecFlow.2-3-0.1.7.0\lib\net45\TechTalk.SpecRun.dll</HintPath>
-    </Reference>
-    <Reference Include="TechTalk.SpecRun.Common, Version=1.7.0.0, Culture=neutral, PublicKeyToken=d0fc5cc18b3b389b, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecRun.SpecFlow.2-3-0.1.7.0\lib\net45\TechTalk.SpecRun.Common.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contexts\AppFeatureContext.cs" />
@@ -101,7 +92,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Update.feature</DependentUpon>
     </Compile>
-    <Compile Include="HttpClientLogHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steps\GenerationSteps.cs" />
     <Compile Include="Steps\HttpSteps.cs" />
@@ -155,11 +145,12 @@
       <Project>{186de763-ad3a-4410-b69e-bd34ec64b1dd}</Project>
       <Name>EF6AspNetWebApi.Tests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EF6AspNetWebApi\EF6AspNetWebApi.csproj">
+      <Project>{7f376052-07f5-42f6-a788-5395afdbca16}</Project>
+      <Name>EF6AspNetWebApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EntityFramework">
-      <Version>6.2.0</Version>
-    </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
       <Version>1.3.2</Version>
     </PackageReference>
@@ -168,6 +159,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Serilog.Sinks.Debug">
+      <Version>1.0.1</Version>
     </PackageReference>
     <PackageReference Include="SpecFlow">
       <Version>2.3.0</Version>

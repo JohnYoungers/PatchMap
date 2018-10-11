@@ -14,8 +14,6 @@ namespace EF6AspNetWebApi.Web
 {
     public class ServiceActivator : IHttpControllerActivator
     {
-        protected IServiceProvider serviceProvider;
-
         public ServiceActivator(HttpConfiguration configuration)
         {
             var services = new ServiceCollection();
@@ -26,14 +24,12 @@ namespace EF6AspNetWebApi.Web
                 services.AddTransient(type);
             }
 
-            services.AddScoped((sp) => new ExampleContext());
-
-            serviceProvider = services.BuildServiceProvider();
+            Application.InitializeAndBuildProvider(services);
         }
 
         public IHttpController Create(HttpRequestMessage request, HttpControllerDescriptor controllerDescriptor, Type controllerType)
         {
-            var scope = serviceProvider.CreateScope();
+            var scope = Application.ServiceProvider.CreateScope();
             request.RegisterForDispose(scope);
 
             return scope.ServiceProvider.GetRequiredService(controllerType) as IHttpController;

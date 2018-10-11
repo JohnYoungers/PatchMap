@@ -1,4 +1,5 @@
-﻿using EF6AspNetWebApi.Web.Tests.Contexts;
+﻿using EF6AspNetWebApi.Handlers;
+using EF6AspNetWebApi.Web.Tests.Contexts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

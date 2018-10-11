@@ -11,7 +11,7 @@ namespace EFCoreAspNetCore
     public abstract class BasePatchCommand<TSource, TTarget, TContext> : BaseCommand
         where TSource : class
         where TTarget : class
-        where TContext : BaseContext, new()
+        where TContext : BasePatchContext, new()
     {
         protected static readonly Mapper<TSource, TTarget, TContext> mapper = new Mapper<TSource, TTarget, TContext>();
 

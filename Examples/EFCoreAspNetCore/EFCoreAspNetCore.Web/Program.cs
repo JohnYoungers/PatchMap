@@ -19,11 +19,6 @@ namespace EFCoreAspNetCore.Web
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddDebug();
-                })
                 .UseStartup<Startup>()
                 .Build();
     }

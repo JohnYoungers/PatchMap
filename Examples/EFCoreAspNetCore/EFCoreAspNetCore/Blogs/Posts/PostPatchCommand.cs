@@ -10,7 +10,7 @@ using PatchMap.Mapping;
 
 namespace EFCoreAspNetCore.Blogs.Posts
 {
-    public class PostPatchCommand : BasePatchCommand<PostViewModel, Post, BaseContext>
+    public class PostPatchCommand : BasePatchCommand<PostViewModel, Post, BasePatchContext>
     {
         static PostPatchCommand()
         {

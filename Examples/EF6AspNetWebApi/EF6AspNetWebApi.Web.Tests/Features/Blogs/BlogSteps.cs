@@ -24,7 +24,7 @@ namespace EF6AspNetWebApi.Web.Tests.Features.Blogs
         [Given(@"a new blog exists with placeholder blogId and first post placeholder postId")]
         public void GivenANewAgencyExistsForCompany()
         {
-            using (var dbContext = new ExampleContext())
+            using (var dbContext = Application.GetDbContext())
             {
                 var dbBlog = dbContext.Blogs.Add(EF6AspNetWebApi.Tests.SampleData.Blogs.Generic());
                 dbBlog.Posts.Add(new Post { Title = "A", Content = "B", DateCreated = DateTimeOffset.Now });

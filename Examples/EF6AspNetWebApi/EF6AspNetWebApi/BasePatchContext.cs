@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EF6AspNetWebApi
 {
-    public class BaseContext
+    public class BasePatchContext
     {
         public List<ValidationResult> ValidationResults { get; set; } = new List<ValidationResult>();
         public ExampleContext DbContext { get; set; }

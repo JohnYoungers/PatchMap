@@ -13,6 +13,7 @@ namespace EF6AspNetWebApi.Web.Tests
         [AssemblyInitialize]
         public static void Initialize(TestContext ctx)
         {
+            Application.InitializeAndBuildProvider();
         }
 
         [AssemblyCleanup]

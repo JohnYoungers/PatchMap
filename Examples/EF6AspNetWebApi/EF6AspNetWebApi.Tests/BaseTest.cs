@@ -1,4 +1,5 @@
 ﻿using EF6AspNetWebApi.Data;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -14,15 +15,12 @@ namespace EF6AspNetWebApi.Tests
 
         static BaseTest()
         {
-            using (var context = new ExampleContext())
-            {
-                ExampleContextMetadata.Build(context);
-            }
+            Application.InitializeAndBuildProvider();
         }
 
         public BaseTest()
         {
-            dbContext = new ExampleContext();
+            dbContext = Application.GetDbContext();
         }
 
         public void DatesAreSimilar(DateTimeOffset expected, DateTimeOffset actual)

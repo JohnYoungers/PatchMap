@@ -7,7 +7,7 @@ using System.Text;
 
 namespace EFCoreAspNetCore
 {
-    public class BaseContext
+    public class BasePatchContext
     {
         public List<ValidationResult> ValidationResults { get; set; } = new List<ValidationResult>();
         public ExampleContext DbContext { get; set; }

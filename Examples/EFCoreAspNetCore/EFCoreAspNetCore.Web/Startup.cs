@@ -20,8 +20,6 @@ namespace EFCoreAspNetCore.Web
 {
     public class Startup
     {
-        public static readonly LoggerFactory SqlLogger = new LoggerFactory(new[] { new DebugLoggerProvider((cat, level) => cat == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information) });
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,6 +29,8 @@ namespace EFCoreAspNetCore.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            Application.InitializeServices(services, Configuration);
+
             services.AddMvc(options =>
             {
                 options.Filters.Add(new ExposeHeadersResultFilter());
@@ -45,27 +45,18 @@ namespace EFCoreAspNetCore.Web
             });
 
             services.AddOData();
-
-            services.AddDbContext<ExampleContext>(options => options
-                .UseLoggerFactory(SqlLogger)
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFCore;Trusted_Connection=True;ConnectRetryCount=0")
-            );
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            Application.FinalizeInitialization(app.ApplicationServices);
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc(routeBuilder =>
             {
                 routeBuilder.EnableDependencyInjection();
             });
-
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.InitializeDatabase();
-            }
         }
     }
 }

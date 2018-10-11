@@ -1,8 +1,6 @@
 using EFCoreAspNetCore.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Debug;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -10,18 +8,13 @@ namespace EFCoreAspNetCore.Tests
 {
     public class BaseTest : IDisposable
     {
-        public static readonly LoggerFactory SqlLogger = new LoggerFactory(new[] { new DebugLoggerProvider((cat, level) => cat == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information) });
-        private static ServiceProvider ServiceProvider = new ServiceCollection()
-                    .AddDbContext<ExampleContext>(o => o.UseLoggerFactory(SqlLogger).UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFCore;Trusted_Connection=True;ConnectRetryCount=0"))
-                    .BuildServiceProvider();
-
         static BaseTest()
         {
-            using (var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.InitializeDatabase();
-            }
+            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            var services = new ServiceCollection();
+
+            Application.InitializeServices(services, configuration);
+            Application.FinalizeInitialization(services.BuildServiceProvider());
         }
 
         protected readonly IServiceScope scope;
@@ -29,7 +22,7 @@ namespace EFCoreAspNetCore.Tests
 
         public BaseTest()
         {
-            scope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
+            scope = Application.ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
             dbContext = scope.ServiceProvider.GetRequiredService<ExampleContext>();
         }
 

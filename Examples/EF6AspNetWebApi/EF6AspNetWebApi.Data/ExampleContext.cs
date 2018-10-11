@@ -14,11 +14,9 @@ namespace EF6AspNetWebApi.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<Tag> Tags { get; set; }
 
-        public ExampleContext() : base(@"Server=(localdb)\mssqllocaldb;Database=EF6;Trusted_Connection=True;ConnectRetryCount=0")
+        public ExampleContext() : base("LocalEF6")
         {
             Database.SetInitializer(new ExampleContextInitializer());
-
-            Database.Log = (s => Debug.WriteLine(s));
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

@@ -31,7 +31,7 @@ namespace EF6AspNetWebApi.Web.Tests.Contexts
             var remainingKeys = new Regex("{.*?}").Match(text);
             if (remainingKeys.Success)
             {
-                Debug.WriteLine("Potential missing key in context: " + remainingKeys.Value);
+                Application.LogDebug<AppFeatureContext>("Potential missing key in context: " + remainingKeys.Value);
             }
 
             return text;
