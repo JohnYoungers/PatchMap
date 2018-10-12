@@ -13,6 +13,9 @@ namespace PatchMap.Tests.Models
         public int? NullableIntValue { get; set; }
         public string StringValue { get; set; }
 
+        [PatchIgnore]
+        public string ThisShouldNotGenerateAPatch { get; set; }
+
         public List<string> StringList { get; set; } = new List<string>();
 
         public List<PatchableCircularReferenceItem> SubItems { get; set; } = new List<PatchableCircularReferenceItem>();
