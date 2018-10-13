@@ -33,7 +33,7 @@ namespace EF6AspNetWebApi.Blogs.Posts
             {
                 if ((target.UpdatedAsOfDate.HasValue && !target.UpdatedPostId.HasValue) || (!target.UpdatedAsOfDate.HasValue && target.UpdatedPostId.HasValue))
                 {
-                    ctx.AddValidationResult(nameof(PostViewModel.UpdatedPost), $"Updated Post requires both a Post and an As Of date");
+                    ctx.AddValidationResult($"Updated Post requires both a Post and an As Of Date", nameof(PostViewModel.UpdatedAsOfDate), nameof(PostViewModel.UpdatedPost));
                 }
             });
         }

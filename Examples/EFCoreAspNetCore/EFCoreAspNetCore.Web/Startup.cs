@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFCoreAspNetCore.Data;
 using EFCoreAspNetCore.Web.Filters;
+using EFCoreAspNetCore.Web.Swashbuckle;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace EFCoreAspNetCore.Web
 {
@@ -31,6 +33,8 @@ namespace EFCoreAspNetCore.Web
         {
             Application.InitializeServices(services, Configuration);
 
+            services.AddOData();
+
             services.AddMvc(options =>
             {
                 options.Filters.Add(new ExposeHeadersResultFilter());
@@ -39,12 +43,21 @@ namespace EFCoreAspNetCore.Web
                 options.Filters.Add(new ItemNotFoundExceptionFilter());
                 options.Filters.Add(new JsonPatchParseExceptionFilter());
                 options.Filters.Add(new PatchCommandResultFilter());
+
+                // We're not using the standard OData output, and it breaks swagger
+                options.OutputFormatters.RemoveType<Microsoft.AspNet.OData.Formatter.ODataOutputFormatter>();
             }).AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
 
-            services.AddOData();
+            services.AddSwaggerGen(c =>
+            {
+                c.MapType<Microsoft.AspNet.OData.Query.ODataQueryOptions<Blog>>(() => new Schema { Type = "string" });
+                c.OperationFilter<ODataOperationFilter>();
+                c.DescribeAllEnumsAsStrings();
+                c.SwaggerDoc("v1", new Info { Title = "Example ASPNetCore + EFCore API", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -56,6 +69,12 @@ namespace EFCoreAspNetCore.Web
             app.UseMvc(routeBuilder =>
             {
                 routeBuilder.EnableDependencyInjection();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Example ASPNetCore + EFCore API V1");
             });
         }
     }
