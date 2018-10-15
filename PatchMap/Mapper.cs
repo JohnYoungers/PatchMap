@@ -1,4 +1,5 @@
-﻿using PatchMap.Mapping;
+﻿using PatchMap.Exceptions;
+using PatchMap.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace PatchMap
         public MapResult<TTarget, TContext> Map(IEnumerable<PatchOperation> operations, TTarget target, TContext ctx)
         {
             var result = new MapResult<TTarget, TContext> { Context = ctx };
+            var addressedOperations = new List<PatchOperation>();
 
             bool mapProcessedWithChanges(FieldMap<TTarget, TContext> map)
             {
@@ -54,6 +56,7 @@ namespace PatchMap
 
                 if (operation != null)
                 {
+                    addressedOperations.Add(operation);
                     if (operation.JsonPatch != null && !operation.JsonPatchValueParsed)
                     {
                         result.AddFailure(map, operation, MapResultFailureType.JsonPatchValueNotParsable);
@@ -148,6 +151,12 @@ namespace PatchMap
             }
 
             routeMap(this);
+
+            var unaddressOperation = operations.FirstOrDefault(o => !addressedOperations.Contains(o) && o.JsonPatch != null);
+            if (unaddressOperation != null)
+            {
+                throw new JsonPatchParseException(unaddressOperation.JsonPatch, $"A map for {unaddressOperation.JsonPatch.path} has not been configured.");
+            }
 
             return result;
         }

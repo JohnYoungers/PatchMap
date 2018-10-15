@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PatchMap.Exceptions;
 using PatchMap.Mapping;
 using PatchMap.Tests.Models;
 using System;
@@ -238,6 +239,20 @@ namespace PatchMap.Tests
 
             //Target.AssociatedEntity is null
             Assert.ThrowsException<ArgumentException>(() => mapper.Map(source.ToPatchOperations(), target, new SampleContext()));
+        }
+
+        [TestMethod]
+        public void ThrowErrorOnMissingMapForJsonPatch()
+        {
+            var operations = source.ToPatchOperations();//load up some non-Json patches
+            operations.AddRange((new[] { new JsonPatch {
+                op = PatchOperationTypes.replace,
+                path = "Address/City",
+                value = 5
+            } }).ToPatchOperations<SampleViewModel>());
+
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => mapper.Map(operations, target, new SampleContext()));
+            Assert.AreEqual("A map for Address/City has not been configured.", ex.Message);
         }
     }
 }
