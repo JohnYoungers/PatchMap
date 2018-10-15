@@ -9,6 +9,7 @@ using System.Text;
 
 namespace PatchMap
 {
+    [Serializable]
     public class JsonPatch
     {
         public PatchOperationTypes op { get; set; }
