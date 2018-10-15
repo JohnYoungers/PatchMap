@@ -6,6 +6,7 @@ using EFCoreAspNetCore.Data;
 using EFCoreAspNetCore.Web.Filters;
 using EFCoreAspNetCore.Web.Swashbuckle;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticFiles;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -44,8 +46,12 @@ namespace EFCoreAspNetCore.Web
                 options.Filters.Add(new JsonPatchParseExceptionFilter());
                 options.Filters.Add(new PatchCommandResultFilter());
 
-                // We're not using the standard OData output, and it breaks swagger
-                options.OutputFormatters.RemoveType<Microsoft.AspNet.OData.Formatter.ODataOutputFormatter>();
+                // Work arounds to prevent OData from crashing swashbuckle
+                options.OutputFormatters.RemoveType<ODataOutputFormatter>();
+                foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(i => !i.SupportedMediaTypes.Any()))
+                {
+                    inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
+                }
             }).AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();

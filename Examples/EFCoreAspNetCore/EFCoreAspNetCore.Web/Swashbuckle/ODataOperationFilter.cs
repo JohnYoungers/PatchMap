@@ -16,6 +16,9 @@ namespace EFCoreAspNetCore.Web.Swashbuckle
                                                     .Select(p => p.ParameterDescriptor.ParameterType)
                                                     .Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Microsoft.AspNet.OData.Query.ODataQueryOptions<>)))
             {
+                //Need to figure out how to prevent ODataQueryOptions from being included in the schema in general
+                operation.Parameters.Clear();
+
                 operation.Parameters.Add(new NonBodyParameter
                 {
                     Name = "$filter",
