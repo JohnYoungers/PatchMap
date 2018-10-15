@@ -17,12 +17,12 @@ namespace EF6AspNetWebApi
 
         public void AddValidationResult(PatchOperation operation, string message)
         {
-            AddValidationResult(operation.PropertyTree.ToString(), message);
+            AddValidationResult(message, operation.PropertyTree.ToString());
         }
 
-        public void AddValidationResult(string property, string message)
+        public void AddValidationResult(string message, params string[] properties)
         {
-            ValidationResults.Add(new ValidationResult(message, new[] { property }));
+            ValidationResults.Add(new ValidationResult(message, properties));
         }
     }
 }

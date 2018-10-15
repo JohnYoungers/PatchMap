@@ -32,12 +32,12 @@ namespace EFCoreAspNetCore.Tests.Blogs
 
             post.UpdatedAsOfDate = DateTimeOffset.Now;
             results = new PostPatchCommand(dbContext).Execute(dbBlog.Entity.BlogId, null, post.ToPatchOperations());
-            results.AssertHasValidationResult("UpdatedPost", "Updated Post requires both a Post and an As Of date");
+            results.AssertHasValidationResult("UpdatedPost", "Updated Post requires both a Post and an As Of Date");
 
             post.UpdatedAsOfDate = null;
             post.UpdatedPost = PostSummaryViewModel.Map().Invoke(dbBlog.Entity.Posts.First());
             results = new PostPatchCommand(dbContext).Execute(dbBlog.Entity.BlogId, null, post.ToPatchOperations());
-            results.AssertHasValidationResult("UpdatedPost", "Updated Post requires both a Post and an As Of date");
+            results.AssertHasValidationResult("UpdatedPost", "Updated Post requires both a Post and an As Of Date");
 
             post.UpdatedAsOfDate = new DateTimeOffset(new DateTime(1500, 1, 1));
             results = new PostPatchCommand(dbContext).Execute(dbBlog.Entity.BlogId, null, post.ToPatchOperations());

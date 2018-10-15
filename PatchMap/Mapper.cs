@@ -113,8 +113,12 @@ namespace PatchMap
                                     result.AddFailure(map, operation, MapResultFailureType.ValueIsNotValid, valueCheck.FailureReason);
                                 }
                             }
+                            else
+                            {
+                                hasChanges = true;
+                            }
 
-                            if (!map.TargetField.Any() || hasChanges)
+                            if (hasChanges)
                             {
                                 map.PostMap?.Invoke(target, ctx, map, operation);
                             }
