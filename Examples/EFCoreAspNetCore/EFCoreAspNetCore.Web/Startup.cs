@@ -53,8 +53,9 @@ namespace EFCoreAspNetCore.Web
 
             services.AddSwaggerGen(c =>
             {
-                c.MapType<Microsoft.AspNet.OData.Query.ODataQueryOptions<Blog>>(() => new Schema { Type = "string" });
                 c.OperationFilter<ODataOperationFilter>();
+                c.OperationFilter<SummaryByFunctionNameOperationFilter>();
+                c.OperationFilter<PatchCommandResultOperationFilter>();
                 c.DescribeAllEnumsAsStrings();
                 c.SwaggerDoc("v1", new Info { Title = "Example ASPNetCore + EFCore API", Version = "v1" });
             });
