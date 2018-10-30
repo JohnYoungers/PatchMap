@@ -65,8 +65,7 @@ namespace PatchMap.Tests
             var model = new PatchableItem
             {
                 IntValue = 5,
-                StringList = stringList,
-
+                StringList = stringList
             };
 
             var operations = model.ToPatchOperations().OrderBy(p => p.PropertyTree.Property.Name).ToList();
@@ -95,6 +94,9 @@ namespace PatchMap.Tests
             Assert.IsTrue(cantUpdateInOnePatchOps.Count > 0);
             Assert.IsTrue(cantUpdateInOnePatchOps.All(o => o.Operation == PatchOperationTypes.replace));
             Assert.IsTrue(cantUpdateInOnePatchOps.All(o => o.Value == null || o.Value is List<PatchableCircularReferenceItem>));//Children collection will be instantiated as new list
+
+            //Ignored
+            Assert.IsTrue(!operations.Any(p => p.PropertyTree.Property.Name == nameof(PatchableItem.ThisShouldNotGenerateAPatch)));
         }
 
         [TestMethod]

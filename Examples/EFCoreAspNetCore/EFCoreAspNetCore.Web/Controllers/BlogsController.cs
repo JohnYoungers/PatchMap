@@ -28,19 +28,19 @@ namespace EFCoreAspNetCore.Web.Controllers
         }
 
         [HttpPost]
-        public PatchCommandResult<BlogViewModel> Insert(BlogViewModel blog)
+        public PatchCommandResult<BlogViewModel> Insert([FromBody]BlogViewModel blog)
         {
             return new BlogPatchCommand(DbContext).Execute(null, blog.ToPatchOperations());
         }
 
         [HttpPut("{id}")]
-        public PatchCommandResult<BlogViewModel> Update(int id, BlogViewModel blog)
+        public PatchCommandResult<BlogViewModel> Update(int id, [FromBody]BlogViewModel blog)
         {
             return new BlogPatchCommand(DbContext).Execute(id, blog.ToPatchOperations());
         }
 
         [HttpPatch("{id}")]
-        public PatchCommandResult<BlogViewModel> Patch(int id, List<JsonPatch> patches)
+        public PatchCommandResult<BlogViewModel> Patch(int id, [FromBody]List<JsonPatch> patches)
         {
             return new BlogPatchCommand(DbContext).Execute(id, patches.ToPatchOperations<BlogViewModel>());
         }
