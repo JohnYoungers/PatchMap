@@ -1,17 +1,32 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PatchMap.Exceptions;
 using PatchMap.Tests.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PatchMap.Tests
 {
     [TestClass]
     public class JsonPatchParsing_InvalidTests
     {
+        [TestMethod]
+        public void JsonPatchParseExceptionSerializes()
+        {
+            var ex = new JsonPatchParseException(new JsonPatch { path = "A/B/C" }, "My Message");
+
+            string exceptionToString = ex.ToString();
+
+            var bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            using (var ms = new System.IO.MemoryStream())
+            {
+                bf.Serialize(ms, ex);
+                ms.Seek(0, 0);
+                ex = (JsonPatchParseException)bf.Deserialize(ms);
+            }
+
+            Assert.AreEqual(exceptionToString, ex.ToString());
+            Assert.AreEqual("A/B/C", ex.Patch.path);
+        }
+
         [TestMethod]
         public void SimpleValueCannotBeParsed()
         {
@@ -39,7 +54,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "badpathvalue", value = null }
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("PatchableItem does not contain a property named badpathvalue", ex.Message);
         }
 
         [TestMethod]
@@ -50,7 +66,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.add, path = "intvalue", value = null }
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("add operation is only valid on collections", ex.Message);
         }
 
         [TestMethod]
@@ -61,7 +78,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.remove, path = "intvalue" }
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("remove operation is only valid on collections", ex.Message);
         }
 
         [TestMethod]
@@ -72,7 +90,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.remove, path = "subitems", value = null }
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("remove operation is invalid on SubItems without the collection item's key", ex.Message);
         }
 
         [TestMethod]
@@ -83,7 +102,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.remove, path = "subitems/a", value = new PatchableCircularReferenceItem() }
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("remove operation should not contain a value", ex.Message);
         }
 
         [TestMethod]
@@ -94,7 +114,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "CantUpdateInOnePatch", value = new PatchableCircularReferenceItem() },
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("CantUpdateInOnePatch can not be updated in one patch", ex.Message);
         }
 
         [TestMethod]
@@ -105,7 +126,8 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "MustUpdateInOnePatch/Code", value = "A" }
             };
 
-            Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => patches.ToPatchOperations<PatchableItem>());
+            Assert.AreEqual("MustUpdateInOnePatch can only be updated in one patch", ex.Message);
         }
     }
 }
