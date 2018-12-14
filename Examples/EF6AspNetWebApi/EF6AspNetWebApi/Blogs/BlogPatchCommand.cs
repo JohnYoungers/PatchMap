@@ -55,7 +55,7 @@ namespace EF6AspNetWebApi.Blogs
 
             var results = mapper.Map(operations, dbItem, GenerateContext(isNew));
 
-            return GeneratePatchResult(results, () =>
+            return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
                 return (isNew, dbItem.BlogId.ToString(), BlogViewModel.Map().Invoke(dbItem));

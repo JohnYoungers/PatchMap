@@ -11,6 +11,7 @@ namespace PatchMap.Mapping
     public delegate FieldMapConversionResult<TTargetProp> ConversionMethod<in TTarget, in TContext, in TSourceProp, TTargetProp>(TTarget target, TContext ctx, TSourceProp value);
     public delegate void FieldPostMapMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation);
 
+    public delegate string LabelMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
     public delegate bool EnabledMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
     public delegate bool RequiredMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
 
@@ -23,8 +24,9 @@ namespace PatchMap.Mapping
     {
         public List<PropertyInfo> SourceField { get; protected set; } = new List<PropertyInfo>();
         public List<PropertyInfo> TargetField { get; protected set; } = new List<PropertyInfo>();
-        public string Label { get; protected set; }
+        
         protected internal bool CollectionItem { get; protected set; }
+        protected internal LabelMethod<TTarget, TContext> LabelGenerator { get; protected set; }
         protected internal EnabledMethod<TTarget, TContext> Enabled { get; protected set; }
         protected internal RequiredMethod<TTarget, TContext> Required { get; protected set; }
         protected internal ConversionMethod<TTarget, TContext> Converter { get; protected set; }
@@ -51,7 +53,7 @@ namespace PatchMap.Mapping
             SourceField = GetProperties(sourceFieldExp.Body);
             if (SourceField.Any())
             {
-                Label = CompiledRegexes.WordSeperator.Replace(SourceField.Last().Name, "$1 $2");
+                LabelGenerator = (target, ctx) => CompiledRegexes.WordSeperator.Replace(SourceField.Last().Name, "$1 $2");
             }
 
             if (targetFieldExp != null)
@@ -60,6 +62,8 @@ namespace PatchMap.Mapping
             }
         }
 
+        public string GenerateLabel(TTarget target, TContext context) => LabelGenerator(target, context);
+
         public FieldMapConversionResult<object> ConvertValue(TTarget target, object value, TContext context)
         {
             return Converter == null || value == null
@@ -67,9 +71,9 @@ namespace PatchMap.Mapping
                 : Converter.Invoke(target, context, value);
         }
 
-        public FieldMap<TTarget, TContext> HasLabel(string label)
+        public FieldMap<TTarget, TContext> HasLabel(LabelMethod<TTarget, TContext> label)
         {
-            Label = label;
+            LabelGenerator = label;
             return this;
         }
         public FieldMap<TTarget, TContext> IsEnabled(EnabledMethod<TTarget, TContext> enabled)

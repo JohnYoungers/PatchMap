@@ -68,7 +68,7 @@ namespace EF6AspNetWebApi
             };
         }
 
-        protected PatchCommandResult<T> GeneratePatchResult<T>(MapResult<TTarget, TContext> mapResult, Func<(bool isNew, string id, T entity)> onSuccess)
+        protected PatchCommandResult<T> GeneratePatchResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<(bool isNew, string id, T entity)> onSuccess)
         {
             if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
             {
@@ -79,16 +79,17 @@ namespace EF6AspNetWebApi
             {
                 foreach (var f in mapResult.Failures)
                 {
+                    var label = f.Map.GenerateLabel(dbItem, mapResult.Context);
                     switch (f.FailureType)
                     {
                         case MapResultFailureType.Required:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.Map.Label} is required");
+                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} is required");
                             break;
                         case MapResultFailureType.JsonPatchValueNotParsable:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.PatchOperation.JsonPatch.value} is not a valid value for ${f.Map.Label}");
+                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.PatchOperation.JsonPatch.value} is not a valid value for ${label}");
                             break;
                         default:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.Map.Label} {f.Reason}");
+                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} {f.Reason}");
                             break;
                     }
                 }

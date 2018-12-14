@@ -34,8 +34,8 @@ namespace PatchMap.Tests
             mapper.AddMap(vm => vm.Address.AddressLine1, db => db.AddressLine1);
             mapper.AddMap(vm => vm.AssociatedEntityName, db => db.AssociatedEntity.Name);
 
-            Assert.AreEqual("Id", (mapper.Mappings[0] as FieldMap<SampleEntity, SampleContext>).Label);
-            Assert.AreEqual("Multi Word Property", (mapper.Mappings[1] as FieldMap<SampleEntity, SampleContext>).Label);
+            Assert.AreEqual("Id", (mapper.Mappings[0] as FieldMap<SampleEntity, SampleContext>).GenerateLabel(null, null));
+            Assert.AreEqual("Multi Word Property", (mapper.Mappings[1] as FieldMap<SampleEntity, SampleContext>).GenerateLabel(null, null));
 
             source.Id = 5;
             source.MultiWordProperty = "ABC";

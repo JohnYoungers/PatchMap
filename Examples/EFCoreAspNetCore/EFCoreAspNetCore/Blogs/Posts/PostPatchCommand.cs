@@ -56,7 +56,7 @@ namespace EFCoreAspNetCore.Blogs.Posts
 
             var results = mapper.Map(operations, dbItem, GenerateContext(isNew));
 
-            return GeneratePatchResult(results, () =>
+            return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
                 return (isNew, dbItem.PostId.ToString(), PostViewModel.Map().Invoke(dbItem));
