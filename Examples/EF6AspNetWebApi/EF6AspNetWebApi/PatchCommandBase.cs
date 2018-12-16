@@ -1,22 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Threading.Tasks;
-using EFCoreAspNetCore.Data;
+﻿using EF6AspNetWebApi.Data;
 using PatchMap;
 using PatchMap.Mapping;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Infrastructure;
+using System.Data.SqlTypes;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace EFCoreAspNetCore
+namespace EF6AspNetWebApi
 {
-    public abstract class BasePatchCommand<TSource, TTarget, TContext> : BaseCommand
+    public abstract class PatchCommandBase<TSource, TTarget, TContext> : CommandBase
         where TSource : class
         where TTarget : class
-        where TContext : BasePatchContext, new()
+        where TContext : PatchContextBase, new()
     {
         protected static readonly Mapper<TSource, TTarget, TContext> mapper = new Mapper<TSource, TTarget, TContext>();
 
-        static BasePatchCommand()
+        static PatchCommandBase()
         {
             mapper.MapTargetHasChanged = (TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object originalValue, object newValue) =>
             {
@@ -34,12 +37,12 @@ namespace EFCoreAspNetCore
                     var targetProperty = map.TargetField.Last();
                     var columnDefinition = ExampleContextMetadata.Tables[targetProperty.DeclaringType][targetProperty.Name];
 
-                    if (columnDefinition.ClrType == typeof(string) && columnDefinition.MaxLength.HasValue && (value as string).Length > columnDefinition.MaxLength)
+                    var valueType = value.GetType();
+                    if (valueType == typeof(string) && columnDefinition.MaxLength.HasValue && (value as string).Length > columnDefinition.MaxLength)
                     {
                         return new FieldMapValueValidResult { FailureReason = $"length must be equal to or less than {columnDefinition.MaxLength} characters" };
                     }
-                    if ((columnDefinition.ClrType == typeof(DateTimeOffset) || columnDefinition.ClrType == typeof(DateTimeOffset?))
-                         && (value as DateTimeOffset?) < SqlDateTime.MinValue.Value)
+                    if ((valueType == typeof(DateTimeOffset) || valueType == typeof(DateTimeOffset?)) && (value as DateTimeOffset?) < SqlDateTime.MinValue.Value)
                     {
                         return new FieldMapValueValidResult { FailureReason = $"must be on or after {SqlDateTime.MinValue.Value.ToShortDateString()}" };
                     }
@@ -48,8 +51,7 @@ namespace EFCoreAspNetCore
                 return new FieldMapValueValidResult { IsValid = true };
             };
         }
-
-        public BasePatchCommand(ExampleContext dbContext) : base(dbContext) { }
+        public PatchCommandBase(ExampleContext dbContext) : base(dbContext) { }
 
         protected (TTarget dbItem, bool isNew) GetEntity<TId>(TId id, Func<IEnumerable<TTarget>> entitySearch, Func<TTarget> newFactory)
         {

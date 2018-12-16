@@ -11,7 +11,7 @@ using System.Web.Http;
 namespace EF6AspNetWebApi.Web.Controllers
 {
     [RoutePrefix("api/blogs")]
-    public class BlogsController : BaseController
+    public class BlogsController : ControllerBase
     {
         public BlogsController(ExampleContext dbContext) : base(dbContext) { }
 

@@ -13,8 +13,8 @@ namespace EFCoreAspNetCore.Tests
             var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             var services = new ServiceCollection();
 
-            Application.InitializeServices(services, configuration);
-            Application.FinalizeInitialization(services.BuildServiceProvider());
+            Application.AddServices(services, configuration);
+            Application.Configure(services.BuildServiceProvider());
         }
 
         protected readonly IServiceScope scope;

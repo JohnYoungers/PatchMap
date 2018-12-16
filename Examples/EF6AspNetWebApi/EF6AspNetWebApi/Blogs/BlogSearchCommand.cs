@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EF6AspNetWebApi.Blogs
 {
-    public class BlogSearchCommand : BaseCommand
+    public class BlogSearchCommand : CommandBase
     {
         public BlogSearchCommand(ExampleContext dbContext) : base(dbContext) { }
 

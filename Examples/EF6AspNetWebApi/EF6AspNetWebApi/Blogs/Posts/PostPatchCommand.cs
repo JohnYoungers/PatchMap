@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EF6AspNetWebApi.Blogs.Posts
 {
-    public class PostPatchCommand : BasePatchCommand<PostViewModel, Post, BasePatchContext>
+    public class PostPatchCommand : PatchCommandBase<PostViewModel, Post, PatchContextBase>
     {
         static PostPatchCommand()
         {

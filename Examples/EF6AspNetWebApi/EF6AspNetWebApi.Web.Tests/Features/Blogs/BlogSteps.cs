@@ -14,25 +14,24 @@ namespace EF6AspNetWebApi.Web.Tests.Features.Blogs
     {
         private readonly AppFeatureContext context;
         private readonly HttpContext httpContext;
+        private readonly ExampleContext dbContext;
 
-        public BlogSteps(AppFeatureContext context, HttpContext httpContext)
+        public BlogSteps(AppFeatureContext context, HttpContext httpContext, ExampleContext dbContext)
         {
             this.context = context;
             this.httpContext = httpContext;
+            this.dbContext = dbContext;
         }
 
         [Given(@"a new blog exists with placeholder blogId and first post placeholder postId")]
         public void GivenANewAgencyExistsForCompany()
         {
-            using (var dbContext = Application.GetDbContext())
-            {
-                var dbBlog = dbContext.Blogs.Add(EF6AspNetWebApi.Tests.SampleData.Blogs.Generic());
-                dbBlog.Posts.Add(new Post { Title = "A", Content = "B", DateCreated = DateTimeOffset.Now });
-                dbContext.SaveChanges();
+            var dbBlog = dbContext.Blogs.Add(EF6AspNetWebApi.Tests.SampleData.Blogs.Generic());
+            dbBlog.Posts.Add(new Post { Title = "A", Content = "B", DateCreated = DateTimeOffset.Now });
+            dbContext.SaveChanges();
 
-                context.AddPlaceholderValue("blogId", dbBlog.BlogId.ToString());
-                context.AddPlaceholderValue("postId", dbBlog.Posts[0].PostId.ToString());
-            }
+            context.AddPlaceholderValue("blogId", dbBlog.BlogId.ToString());
+            context.AddPlaceholderValue("postId", dbBlog.Posts[0].PostId.ToString());
         }
     }
 }

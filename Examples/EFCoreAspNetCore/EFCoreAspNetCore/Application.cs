@@ -16,7 +16,7 @@ namespace EFCoreAspNetCore
         public static IServiceProvider ServiceProvider { get; private set; }
         public static ILoggerFactory LoggerFactory { get; private set; }
 
-        public static void InitializeServices(IServiceCollection serviceCollection, IConfiguration configuration)
+        public static void AddServices(IServiceCollection serviceCollection, IConfiguration configuration)
         {
             var serilog = new LoggerConfiguration().ReadFrom.Configuration(configuration);
             Log.Logger = serilog.CreateLogger();
@@ -24,7 +24,7 @@ namespace EFCoreAspNetCore
 
             serviceCollection.AddDbContext<ExampleContext>(options => options.UseSqlServer(configuration.GetConnectionString("EFCore")));
         }
-        public static void FinalizeInitialization(IServiceProvider serviceProvider)
+        public static void Configure(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
             LoggerFactory = ServiceProvider.GetService<ILoggerFactory>();

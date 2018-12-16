@@ -7,7 +7,7 @@ using LinqKit;
 
 namespace EFCoreAspNetCore.Blogs.Posts
 {
-    public class PostSearchCommand : BaseCommand
+    public class PostSearchCommand : CommandBase
     {
         public PostSearchCommand(ExampleContext dbContext) : base(dbContext) { }
 

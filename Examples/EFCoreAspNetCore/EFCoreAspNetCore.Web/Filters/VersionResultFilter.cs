@@ -11,7 +11,7 @@ namespace EFCoreAspNetCore.Web.Filters
 
         public VersionResultFilter()
         {
-            var assembly = Assembly.GetAssembly(typeof(BaseCommand));
+            var assembly = Assembly.GetAssembly(typeof(CommandBase));
             var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             Version = fileVersionInfo.ProductVersion;
         }

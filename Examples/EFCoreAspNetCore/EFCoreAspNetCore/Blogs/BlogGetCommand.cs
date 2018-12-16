@@ -7,7 +7,7 @@ using LinqKit;
 
 namespace EFCoreAspNetCore.Blogs
 {
-    public class BlogGetCommand : BaseCommand
+    public class BlogGetCommand : CommandBase
     {
         public BlogGetCommand(ExampleContext dbContext) : base(dbContext) { }
 

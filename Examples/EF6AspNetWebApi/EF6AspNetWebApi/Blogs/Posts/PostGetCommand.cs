@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EF6AspNetWebApi.Blogs.Posts
 {
-    public class PostGetCommand : BaseCommand
+    public class PostGetCommand : CommandBase
     {
         public PostGetCommand(ExampleContext dbContext) : base(dbContext) { }
 

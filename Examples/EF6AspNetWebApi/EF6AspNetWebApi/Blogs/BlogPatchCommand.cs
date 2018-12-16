@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EF6AspNetWebApi.Blogs
 {
-    public class BlogPatchCommand : BasePatchCommand<BlogViewModel, Blog, BasePatchContext>
+    public class BlogPatchCommand : PatchCommandBase<BlogViewModel, Blog, PatchContextBase>
     {
         static BlogPatchCommand()
         {
@@ -36,7 +36,7 @@ namespace EF6AspNetWebApi.Blogs
             mapper.AddMap(vm => vm.Tags).HasPostMap(PostMapTags);
         }
 
-        private static void PostMapTags(Blog target, BasePatchContext ctx, FieldMap<Blog, BasePatchContext> map, PatchOperation operation)
+        private static void PostMapTags(Blog target, PatchContextBase ctx, FieldMap<Blog, PatchContextBase> map, PatchOperation operation)
         {
             var tags = operation.Value as List<string> ?? new List<string>();
 
