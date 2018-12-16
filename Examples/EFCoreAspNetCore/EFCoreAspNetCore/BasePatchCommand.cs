@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Threading.Tasks;
 using EFCoreAspNetCore.Data;
 using PatchMap;
 using PatchMap.Mapping;
@@ -74,25 +75,43 @@ namespace EFCoreAspNetCore
             }
             else
             {
-                foreach (var f in mapResult.Failures)
-                {
-                    var label = f.Map.GenerateLabel(dbItem, mapResult.Context);
-                    switch (f.FailureType)
-                    {
-                        case MapResultFailureType.Required:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} is required");
-                            break;
-                        case MapResultFailureType.JsonPatchValueNotParsable:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.PatchOperation.JsonPatch.value} is not a valid value for ${label}");
-                            break;
-                        default:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} {f.Reason}");
-                            break;
-                    }
-                }
-
-                return new PatchCommandResult<T> { ValidationResults = mapResult.Context.ValidationResults };
+                return GenerateValidationCommandResult<T>(dbItem, mapResult);
             }
+        }
+
+        protected async Task<PatchCommandResult<T>> GeneratePatchResultAsync<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<Task<(bool isNew, string id, T entity)>> onSuccess)
+        {
+            if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
+            {
+                var (isNew, id, entity) = await onSuccess().ConfigureAwait(false);
+                return new PatchCommandResult<T> { IsNew = isNew, EntityId = id, Entity = entity };
+            }
+            else
+            {
+                return GenerateValidationCommandResult<T>(dbItem, mapResult);
+            }
+        }
+
+        private PatchCommandResult<T> GenerateValidationCommandResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult)
+        {
+            foreach (var f in mapResult.Failures)
+            {
+                var label = f.Map.GenerateLabel(dbItem, mapResult.Context);
+                switch (f.FailureType)
+                {
+                    case MapResultFailureType.Required:
+                        mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} is required");
+                        break;
+                    case MapResultFailureType.JsonPatchValueNotParsable:
+                        mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.PatchOperation.JsonPatch.value} is not a valid value for ${label}");
+                        break;
+                    default:
+                        mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} {f.Reason}");
+                        break;
+                }
+            }
+
+            return new PatchCommandResult<T> { ValidationResults = mapResult.Context.ValidationResults };
         }
     }
 }
