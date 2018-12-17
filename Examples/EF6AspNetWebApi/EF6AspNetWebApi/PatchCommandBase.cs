@@ -68,33 +68,21 @@ namespace EF6AspNetWebApi
             };
         }
 
-        protected PatchCommandResult<T> GeneratePatchResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<(bool isNew, string id, T entity)> onSuccess)
+        protected T GeneratePatchResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<T> onSuccess) where T : PatchCommandResult, new()
         {
-            if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
-            {
-                var (isNew, id, entity) = onSuccess();
-                return new PatchCommandResult<T> { IsNew = isNew, EntityId = id, Entity = entity };
-            }
-            else
-            {
-                return GenerateValidationCommandResult<T>(dbItem, mapResult);
-            }
+            return mapResult.Succeeded && !mapResult.Context.ValidationResults.Any()
+                ? onSuccess()
+                : GenerateValidationCommandResult<T>(dbItem, mapResult);
         }
 
-        protected async Task<PatchCommandResult<T>> GeneratePatchResultAsync<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<Task<(bool isNew, string id, T entity)>> onSuccess)
+        protected async Task<T> GeneratePatchResultAsync<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<Task<T>> onSuccess) where T : PatchCommandResult, new()
         {
-            if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
-            {
-                var (isNew, id, entity) = await onSuccess().ConfigureAwait(false);
-                return new PatchCommandResult<T> { IsNew = isNew, EntityId = id, Entity = entity };
-            }
-            else
-            {
-                return GenerateValidationCommandResult<T>(dbItem, mapResult);
-            }
+            return mapResult.Succeeded && !mapResult.Context.ValidationResults.Any()
+                ? await onSuccess().ConfigureAwait(false)
+                : GenerateValidationCommandResult<T>(dbItem, mapResult);
         }
 
-        private PatchCommandResult<T> GenerateValidationCommandResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult)
+        private T GenerateValidationCommandResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult) where T : PatchCommandResult, new()
         {
             foreach (var f in mapResult.Failures)
             {
@@ -113,7 +101,7 @@ namespace EF6AspNetWebApi
                 }
             }
 
-            return new PatchCommandResult<T> { ValidationResults = mapResult.Context.ValidationResults };
+            return new T { ValidationResults = mapResult.Context.ValidationResults };
         }
     }
 }

@@ -58,7 +58,7 @@ namespace EF6AspNetWebApi.Blogs
             return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
-                return (isNew, dbItem.BlogId.ToString(), BlogViewModel.Map().Invoke(dbItem));
+                return new PatchCommandResult<BlogViewModel>(isNew, dbItem.BlogId.ToString(), BlogViewModel.Map().Invoke(dbItem));
             });
         }
     }

@@ -59,7 +59,7 @@ namespace EFCoreAspNetCore.Blogs.Posts
             return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
-                return (isNew, dbItem.PostId.ToString(), PostViewModel.Map().Invoke(dbItem));
+                return new PatchCommandResult<PostViewModel>(isNew, dbItem.PostId.ToString(), PostViewModel.Map().Invoke(dbItem));
             });
         }
     }
