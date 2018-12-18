@@ -22,6 +22,7 @@ namespace PatchMap.Tests
                 new JsonPatch { op = PatchOperationTypes.replace, path = "nullableintvalue", value = null },
                 new JsonPatch { op = PatchOperationTypes.replace, path = "stringvalue", value = "Hello" },
                 new JsonPatch { op = PatchOperationTypes.replace, path = "stringvalue", value = null },
+                new JsonPatch { op = PatchOperationTypes.replace, path = "nullableguidvalue", value = "4e86c79f-8f12-40b2-9e22-180041bf4864" },
                 new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems/Item A", value = JToken.Parse("{ Code: 'A', Description: 'B'}")}
             };
 
@@ -36,9 +37,11 @@ namespace PatchMap.Tests
             Assert.AreEqual(true, operations[3].JsonPatchValueParsed);
             Assert.AreEqual(null, operations[4].Value);
             Assert.AreEqual(true, operations[4].JsonPatchValueParsed);
-            Assert.AreEqual("A", (operations[5].Value as PatchableCircularReferenceItem).Code);
-            Assert.AreEqual("B", (operations[5].Value as PatchableCircularReferenceItem).Description);
+            Assert.AreEqual(new Guid("4e86c79f-8f12-40b2-9e22-180041bf4864"), operations[5].Value);
             Assert.AreEqual(true, operations[5].JsonPatchValueParsed);
+            Assert.AreEqual("A", (operations[6].Value as PatchableCircularReferenceItem).Code);
+            Assert.AreEqual("B", (operations[6].Value as PatchableCircularReferenceItem).Description);
+            Assert.AreEqual(true, operations[6].JsonPatchValueParsed);
         }
 
         [TestMethod]
