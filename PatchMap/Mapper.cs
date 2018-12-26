@@ -28,7 +28,7 @@ namespace PatchMap
 
             bool mapProcessedWithChanges(FieldMap<TTarget, TContext> map)
             {
-                var operation = operations.FirstOrDefault(op =>
+                var matchingOperations = operations.Where(op =>
                 {
                     var prop = op.PropertyTree;
                     for (var i = 0; i < map.SourceField.Count; i++)
@@ -54,7 +54,8 @@ namespace PatchMap
                     return true;
                 });
 
-                if (operation != null)
+                bool mapResultedInUpdate = false;
+                foreach (var operation in matchingOperations)
                 {
                     addressedOperations.Add(operation);
                     if (operation.JsonPatch != null && !operation.JsonPatchValueParsed)
@@ -69,7 +70,6 @@ namespace PatchMap
                         if (!processedValue.Succeeded)
                         {
                             result.AddFailure(map, operation, MapResultFailureType.ValueConversionFailed, processedValue.FailureReason);
-                            return false;
                         }
                         else
                         {
@@ -124,14 +124,13 @@ namespace PatchMap
                             if (hasChanges)
                             {
                                 map.PostMap?.Invoke(target, ctx, map, operation);
+                                mapResultedInUpdate = true;
                             }
-
-                            return hasChanges;
                         }
                     }
                 }
 
-                return false;
+                return mapResultedInUpdate;
             }
 
             bool routeMap(Map<TTarget, TContext> map)

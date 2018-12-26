@@ -50,16 +50,22 @@ namespace PatchMap.Tests
         }
 
         [TestMethod]
-        public void MapsCollectionItem()
+        public void MapsCollectionItems()
         {
-            var patch = new JsonPatch
-            {
-                path = "StringCollection/ABC123"
-            };
-            var operations = (new[] { patch }).ToPatchOperations<SampleViewModel>();
+            var operations = (new[] {
+                new JsonPatch
+                {
+                    path = "StringCollection/ABC123"
+                },
+                new JsonPatch
+                {
+                    path = "StringCollection/DEF456"
+                }
+             }).ToPatchOperations<SampleViewModel>();
+
             mapper.Map(operations, target, new SampleContext());
             Assert.AreEqual(0, fullCollectionChanged);
-            Assert.AreEqual(1, itemChanged);
+            Assert.AreEqual(2, itemChanged);
         }
     }
 }
