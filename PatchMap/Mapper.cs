@@ -35,7 +35,7 @@ namespace PatchMap
                     {
                         var sourceField = map.SourceField[i];
 
-                        if (prop == null || sourceField.DeclaringType != prop.Property.DeclaringType || sourceField.Name != prop.Property.Name)
+                        if (prop == null || !sourceField.DeclaringType.IsAssignableFrom(prop.Property.DeclaringType) || sourceField.Name != prop.Property.Name)
                         {
                             return false;
                         }
