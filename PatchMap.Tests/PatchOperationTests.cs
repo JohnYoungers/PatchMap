@@ -36,7 +36,7 @@ namespace PatchMap.Tests
         }
 
         [TestMethod]
-        public void ManualCreate()
+        public void ManualCreate_FromEntity()
         {
             var model = new PatchableItem
             {
@@ -56,6 +56,18 @@ namespace PatchMap.Tests
             Assert.AreEqual(null, op3.Value);
             Assert.AreEqual("IntValue", op4.PropertyTree.ToString());
             Assert.AreEqual(0, op4.Value);
+        }
+
+        [TestMethod]
+        public void ManualCreate_FromValue()
+        {
+            var op1 = PatchOperation<PatchableItem>.Create(i => i.IntValue, 2);
+            var op2 = PatchOperation<PatchableItem>.Create(i => i.CantUpdateInOnePatch.Code, "A");
+
+            Assert.AreEqual("IntValue", op1.PropertyTree.ToString());
+            Assert.AreEqual(2, op1.Value);
+            Assert.AreEqual("CantUpdateInOnePatch/Code", op2.PropertyTree.ToString());
+            Assert.AreEqual("A", op2.Value);
         }
 
         [TestMethod]

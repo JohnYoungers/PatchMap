@@ -64,6 +64,17 @@ namespace PatchMap
         }
     }
 
+    public class PatchOperation<T> : PatchOperation
+    {
+        public static PatchOperation Create<Y>(Expression<Func<T, Y>> field, Y value)
+        {
+            var operation = Create(default(T), field);
+            operation.Value = value;
+
+            return operation;
+        }
+    }
+
     public static class PatchOperationExtensions
     {
         public static List<PatchOperation> ToPatchOperations(this object model)

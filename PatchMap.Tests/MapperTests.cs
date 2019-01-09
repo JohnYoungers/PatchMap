@@ -250,9 +250,12 @@ namespace PatchMap.Tests
                 path = "Address/City",
                 value = 5
             } }).ToPatchOperations<SampleViewModel>());
-
-            var ex = Assert.ThrowsException<JsonPatchParseException>(() => mapper.Map(operations, target, new SampleContext()));
+            var context = new SampleContext();
+            var ex = Assert.ThrowsException<JsonPatchParseException>(() => mapper.Map(operations, target, context));
             Assert.AreEqual("A map for Address/City has not been configured.", ex.Message);
+
+            // No exception with flag enabled
+            mapper.Map(operations, target, context, new MapConfiguration { AllowUnmappedOperations = true });
         }
     }
 }

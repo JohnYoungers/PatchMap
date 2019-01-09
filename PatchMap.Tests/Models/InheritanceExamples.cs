@@ -11,10 +11,13 @@ namespace PatchMap.Tests.Models
         AddressViewModel Address { get; set; }
     }
 
-    public class InterfaceImplementationViewModel : IInterfaceExample
+    public class InterfaceBaseImplementationViewModel
     {
         public string FieldA { get; set; }
+    }
 
+    public class InterfaceImplementationViewModel : InterfaceBaseImplementationViewModel, IInterfaceExample
+    {
         [PatchRecursively]
         public AddressViewModel Address { get; set; }
     }

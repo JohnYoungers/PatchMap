@@ -21,9 +21,17 @@ namespace PatchMap
         public MapTargetValueIsValidMethod<TTarget, TContext> MapTargetValueIsValid { get; set; }
             = (target, ctx, map, operation, value) => new FieldMapValueValidResult { IsValid = true };
 
-        public MapResult<TTarget, TContext> Map(IEnumerable<PatchOperation> operations, TTarget target, TContext ctx)
+        public MapResult<TTarget, TContext> Map(IEnumerable<PatchOperation> operations, TTarget target, TContext context)
         {
-            var result = new MapResult<TTarget, TContext> { Context = ctx };
+            return Map(operations, target, context, new MapConfiguration
+            {
+                AllowUnmappedOperations = false
+            });
+        }
+
+        public MapResult<TTarget, TContext> Map(IEnumerable<PatchOperation> operations, TTarget target, TContext context, MapConfiguration configuration)
+        {
+            var result = new MapResult<TTarget, TContext> { Context = context };
             var addressedOperations = new List<PatchOperation>();
 
             bool mapProcessedWithChanges(FieldMap<TTarget, TContext> map)
@@ -35,7 +43,7 @@ namespace PatchMap
                     {
                         var sourceField = map.SourceField[i];
 
-                        if (prop == null || !sourceField.DeclaringType.IsAssignableFrom(prop.Property.DeclaringType) || sourceField.Name != prop.Property.Name)
+                        if (prop == null || !sourceField.PropertyType.IsAssignableFrom(prop.Property.PropertyType) || sourceField.Name != prop.Property.Name)
                         {
                             return false;
                         }
@@ -61,10 +69,10 @@ namespace PatchMap
                     {
                         result.AddFailure(map, operation, MapResultFailureType.JsonPatchValueNotParsable);
                     }
-                    else if (map.Enabled == null || map.Enabled(target, ctx))
+                    else if (map.Enabled == null || map.Enabled(target, context))
                     {
                         object originalValue = null;
-                        var processedValue = map.ConvertValue(target, operation.Value, ctx);
+                        var processedValue = map.ConvertValue(target, operation.Value, context);
 
                         if (!processedValue.Succeeded)
                         {
@@ -76,9 +84,9 @@ namespace PatchMap
                             bool hasChanges = false;
                             bool valueIsMissing = processedValue.Value == null || (processedValue.Value is string s && string.IsNullOrEmpty(s));
                             bool? isRequiredFromContext = (valueIsMissing && map.Required != null)
-                                ? map.Required(target, ctx)
+                                ? map.Required(target, context)
                                 : (bool?)null;
-                            bool isTargetRequired = valueIsMissing && map.TargetField.Any() && MapTargetIsRequired(target, ctx, map, operation);
+                            bool isTargetRequired = valueIsMissing && map.TargetField.Any() && MapTargetIsRequired(target, context, map, operation);
 
                             if (isRequiredFromContext == true || (isRequiredFromContext == null && isTargetRequired))
                             {
@@ -86,7 +94,7 @@ namespace PatchMap
                             }
                             else if (map.TargetField.Any())
                             {
-                                var valueCheck = MapTargetValueIsValid(target, ctx, map, operation, processedValue.Value);
+                                var valueCheck = MapTargetValueIsValid(target, context, map, operation, processedValue.Value);
                                 if (valueCheck.IsValid)
                                 {
                                     object obj = target;
@@ -109,7 +117,7 @@ namespace PatchMap
                                         }
                                     }
 
-                                    hasChanges = MapTargetHasChanged(target, ctx, map, operation, originalValue, processedValue.Value);
+                                    hasChanges = MapTargetHasChanged(target, context, map, operation, originalValue, processedValue.Value);
                                 }
                                 else
                                 {
@@ -123,7 +131,7 @@ namespace PatchMap
 
                             if (hasChanges)
                             {
-                                map.PostMap?.Invoke(target, ctx, map, operation);
+                                map.PostMap?.Invoke(target, context, map, operation);
                             }
 
                             return hasChanges;
@@ -145,7 +153,7 @@ namespace PatchMap
                         var hasChanges = mapResults.Any(changed => changed);
                         if (hasChanges)
                         {
-                            compoundMap.PostMap?.Invoke(target, ctx);
+                            compoundMap.PostMap?.Invoke(target, context);
                         }
 
                         return hasChanges;
@@ -156,10 +164,13 @@ namespace PatchMap
 
             routeMap(this);
 
-            var unaddressOperation = operations.FirstOrDefault(o => !addressedOperations.Contains(o) && o.JsonPatch != null);
-            if (unaddressOperation != null)
+            if (!configuration.AllowUnmappedOperations)
             {
-                throw new JsonPatchParseException(unaddressOperation.JsonPatch, $"A map for {unaddressOperation.JsonPatch.path} has not been configured.");
+                var unaddressOperation = operations.FirstOrDefault(o => !addressedOperations.Contains(o) && o.JsonPatch != null);
+                if (unaddressOperation != null)
+                {
+                    throw new JsonPatchParseException(unaddressOperation.JsonPatch, $"A map for {unaddressOperation.JsonPatch.path} has not been configured.");
+                }
             }
 
             return result;
