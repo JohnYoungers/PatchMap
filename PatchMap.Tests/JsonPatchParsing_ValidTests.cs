@@ -163,5 +163,23 @@ namespace PatchMap.Tests
             var operations = patches.ToPatchOperations<PatchableItem>();
             Assert.AreEqual(3, operations.Count);
         }
+
+        [TestMethod]
+        public void ParsesArray()
+        {
+            var patches = new List<JsonPatch>
+            {
+                new JsonPatch { op = PatchOperationTypes.replace, path = "StringList", value = JArray.Parse("['A', 'B']") },
+                new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems", value = JArray.Parse("[{ Code: 'A', Description: 'B'}, { Code: 'C', Description: 'D'}]") },
+            };
+
+            var operations = patches.ToPatchOperations<PatchableItem>();
+            Assert.AreEqual(2, operations.Count);
+            CollectionAssert.AreEqual(new List<string> { "A", "B" }, (List<string>)operations[0].Value);
+
+            var op2Values = (List<PatchableCircularReferenceItem>)operations[1].Value;
+            Assert.AreEqual("A", op2Values[0].Code);
+            Assert.AreEqual("D", op2Values[1].Description);
+        }
     }
 }

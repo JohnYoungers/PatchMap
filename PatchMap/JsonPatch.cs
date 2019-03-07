@@ -47,11 +47,6 @@ namespace PatchMap
                 currentType = currentProperty.PropertyType;
                 if (typeof(IEnumerable).IsAssignableFrom(currentType) && currentType != typeof(string))
                 {
-                    if (currentType.IsGenericType)
-                    {
-                        currentType = currentType.GetGenericArguments()[0];
-                    }
-
                     if (patch.op == PatchOperationTypes.remove)
                     {
                         if (patch.value != null)
@@ -67,6 +62,10 @@ namespace PatchMap
                     if (!isLastPart())
                     {
                         collectionKey = splitPath[++i];
+                        if (currentType.IsGenericType)
+                        {
+                            currentType = currentType.GetGenericArguments()[0];
+                        }
                     }
                 }
                 else
