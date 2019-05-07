@@ -113,6 +113,23 @@ namespace PatchMap.Tests
         }
 
         [TestMethod]
+        public void Converter_ManualFieldUpdate()
+        {
+            bool changedRegistered = false;
+            // This converter is manually updating the field itself: make sure our comparison uses the original value
+            mapper.AddMap(vm => vm.Parent, db => db.ParentId).HasConverter((SampleEntity t, SampleContext ctx, SampleSummaryViewModel value) =>
+            {
+                t.ParentId = 5;
+                return new FieldMapConversionResult<int?> { Value = 5 };
+            }).HasPostMap((target, ctx, map, operation) => changedRegistered = true);
+
+            source.Parent = new SampleSummaryViewModel { Id = 4 };
+            var results = mapper.Map(source.ToPatchOperations(), target, new SampleContext());
+            Assert.AreEqual(true, results.Succeeded);
+            Assert.AreEqual(true, changedRegistered);
+        }
+
+        [TestMethod]
         public void Enable()
         {
             mapper.AddMap(vm => vm.Id, db => db.Id).IsEnabled((t, ctx) => ctx.IsNew);
