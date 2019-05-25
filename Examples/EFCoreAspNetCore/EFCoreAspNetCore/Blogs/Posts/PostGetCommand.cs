@@ -15,5 +15,10 @@ namespace EFCoreAspNetCore.Blogs.Posts
         {
             return FilterToFirstOrDefault(DbContext.Posts.Where(p => p.BlogId == blogId && p.PostId == id), PostViewModel.Map());
         }
+
+        public List<PostViewModel> Execute(int blogId, Func<IQueryable, IQueryable> filter = null)
+        {
+            return FilterToList(DbContext.Blogs.Where(b => b.BlogId == blogId).SelectMany(b => b.Posts), filter, PostViewModel.Map());
+        }
     }
 }

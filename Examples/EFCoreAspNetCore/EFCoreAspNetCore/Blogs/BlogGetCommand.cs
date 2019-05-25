@@ -15,5 +15,10 @@ namespace EFCoreAspNetCore.Blogs
         {
             return FilterToFirstOrDefault(DbContext.Blogs.Where(b => b.BlogId == id), BlogViewModel.Map());
         }
+
+        public List<BlogViewModel> Execute(Func<IQueryable, IQueryable> filter = null)
+        {
+            return FilterToList(DbContext.Blogs, filter, BlogViewModel.Map());
+        }
     }
 }

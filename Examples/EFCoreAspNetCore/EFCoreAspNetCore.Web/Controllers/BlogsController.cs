@@ -18,7 +18,7 @@ namespace EFCoreAspNetCore.Web.Controllers
         [HttpGet]
         public List<BlogViewModel> Search(ODataQueryOptions<Blog> query)
         {
-            return new BlogSearchCommand(DbContext).Execute(query.ApplyTo);
+            return new BlogGetCommand(DbContext).Execute(query.ApplyTo);
         }
 
         [HttpGet("{id}")]

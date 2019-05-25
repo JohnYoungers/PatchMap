@@ -6,9 +6,9 @@ using System;
 
 namespace EFCoreAspNetCore.Tests
 {
-    public class BaseTest : IDisposable
+    public class TestBase : IDisposable
     {
-        static BaseTest()
+        static TestBase()
         {
             var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             var services = new ServiceCollection();
@@ -20,7 +20,7 @@ namespace EFCoreAspNetCore.Tests
         protected readonly IServiceScope scope;
         protected readonly ExampleContext dbContext;
 
-        public BaseTest()
+        public TestBase()
         {
             scope = Application.ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
             dbContext = scope.ServiceProvider.GetRequiredService<ExampleContext>();
