@@ -20,7 +20,7 @@ namespace EF6AspNetWebApi.Tests
 
         public BaseTest()
         {
-            dbContext = Application.GetDbContext();
+            dbContext = Application.ServiceProvider.GetRequiredService<ExampleContext>();
         }
 
         public void DatesAreSimilar(DateTimeOffset expected, DateTimeOffset actual)

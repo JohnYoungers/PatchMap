@@ -6,21 +6,21 @@ using System;
 
 namespace EFCoreAspNetCore.Tests
 {
-    public class BaseTest : IDisposable
+    public class TestBase : IDisposable
     {
-        static BaseTest()
+        static TestBase()
         {
             var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             var services = new ServiceCollection();
 
-            Application.InitializeServices(services, configuration);
-            Application.FinalizeInitialization(services.BuildServiceProvider());
+            Application.AddServices(services, configuration);
+            Application.Configure(services.BuildServiceProvider());
         }
 
         protected readonly IServiceScope scope;
         protected readonly ExampleContext dbContext;
 
-        public BaseTest()
+        public TestBase()
         {
             scope = Application.ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
             dbContext = scope.ServiceProvider.GetRequiredService<ExampleContext>();

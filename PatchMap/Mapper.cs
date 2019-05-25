@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace PatchMap
@@ -36,7 +37,7 @@ namespace PatchMap
 
             bool mapProcessedWithChanges(FieldMap<TTarget, TContext> map)
             {
-                var operation = operations.FirstOrDefault(op =>
+                var matchingOperations = operations.Where(op =>
                 {
                     var prop = op.PropertyTree;
                     for (var i = 0; i < map.SourceField.Count; i++)
@@ -62,7 +63,8 @@ namespace PatchMap
                     return true;
                 });
 
-                if (operation != null)
+                bool mapResultedInUpdate = false;
+                foreach (var operation in matchingOperations)
                 {
                     addressedOperations.Add(operation);
                     if (operation.JsonPatch != null && !operation.JsonPatchValueParsed)
@@ -72,12 +74,35 @@ namespace PatchMap
                     else if (map.Enabled == null || map.Enabled(target, context))
                     {
                         object originalValue = null;
+                        object targetObject = target;
+                        PropertyInfo targetPropertyInfo = null;
+                        if (map.TargetField.Any())
+                        {
+                            for (var i = 0; i < map.TargetField.Count; i++)
+                            {
+                                var pi = map.TargetField[i];
+                                if (i < map.TargetField.Count - 1)
+                                {
+                                    targetObject = pi.GetValue(targetObject);
+
+                                    if (targetObject == null)
+                                    {
+                                        throw new ArgumentException($"Could not set value for {pi.Name} on {pi.PropertyType.Name} because object was null");
+                                    }
+                                }
+                                else
+                                {
+                                    originalValue = pi.GetValue(targetObject);
+                                    targetPropertyInfo = pi;
+                                }
+                            }
+                        }
+
                         var processedValue = map.ConvertValue(target, operation.Value, context);
 
                         if (!processedValue.Succeeded)
                         {
                             result.AddFailure(map, operation, MapResultFailureType.ValueConversionFailed, processedValue.FailureReason);
-                            return false;
                         }
                         else
                         {
@@ -97,25 +122,7 @@ namespace PatchMap
                                 var valueCheck = MapTargetValueIsValid(target, context, map, operation, processedValue.Value);
                                 if (valueCheck.IsValid)
                                 {
-                                    object obj = target;
-                                    for (var i = 0; i < map.TargetField.Count; i++)
-                                    {
-                                        var pi = map.TargetField[i];
-                                        if (i < map.TargetField.Count - 1)
-                                        {
-                                            obj = pi.GetValue(obj);
-
-                                            if (obj == null)
-                                            {
-                                                throw new ArgumentException($"Could not set value for {pi.Name} on {pi.PropertyType.Name} because object was null");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            originalValue = pi.GetValue(obj);
-                                            pi.SetValue(obj, processedValue.Value);
-                                        }
-                                    }
+                                    targetPropertyInfo.SetValue(targetObject, processedValue.Value);
 
                                     hasChanges = MapTargetHasChanged(target, context, map, operation, originalValue, processedValue.Value);
                                 }
@@ -132,14 +139,13 @@ namespace PatchMap
                             if (hasChanges)
                             {
                                 map.PostMap?.Invoke(target, context, map, operation);
+                                mapResultedInUpdate = true;
                             }
-
-                            return hasChanges;
                         }
                     }
                 }
 
-                return false;
+                return mapResultedInUpdate;
             }
 
             bool routeMap(Map<TTarget, TContext> map)

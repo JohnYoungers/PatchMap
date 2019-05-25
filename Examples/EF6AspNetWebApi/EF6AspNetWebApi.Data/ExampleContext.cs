@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
@@ -14,9 +15,11 @@ namespace EF6AspNetWebApi.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<Tag> Tags { get; set; }
 
-        public ExampleContext() : base("LocalEF6")
+        public ExampleContext(ILogger<ExampleContext> logger) : base("LocalEF6")
         {
             Database.SetInitializer(new ExampleContextInitializer());
+
+            Database.Log = (s => logger.LogTrace(s));
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -25,8 +28,6 @@ namespace EF6AspNetWebApi.Data
 
             modelBuilder.Entity<Blog>().HasMany(c => c.Posts).WithRequired(c => c.Blog);
             modelBuilder.Entity<Tag>().HasKey(c => new { c.BlogId, c.Name });
-
-            //ExampleContextMetadata.BuildMetadata(this);
         }
     }
 

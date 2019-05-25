@@ -34,8 +34,8 @@ namespace PatchMap.Tests
             mapper.AddMap(vm => vm.Address.AddressLine1, db => db.AddressLine1);
             mapper.AddMap(vm => vm.AssociatedEntityName, db => db.AssociatedEntity.Name);
 
-            Assert.AreEqual("Id", (mapper.Mappings[0] as FieldMap<SampleEntity, SampleContext>).Label);
-            Assert.AreEqual("Multi Word Property", (mapper.Mappings[1] as FieldMap<SampleEntity, SampleContext>).Label);
+            Assert.AreEqual("Id", (mapper.Mappings[0] as FieldMap<SampleEntity, SampleContext>).GenerateLabel(null, null));
+            Assert.AreEqual("Multi Word Property", (mapper.Mappings[1] as FieldMap<SampleEntity, SampleContext>).GenerateLabel(null, null));
 
             source.Id = 5;
             source.MultiWordProperty = "ABC";
@@ -110,6 +110,23 @@ namespace PatchMap.Tests
             Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyTree.ToString() == "Parent"), results.Failures[0].PatchOperation);
             Assert.AreEqual(MapResultFailureType.ValueConversionFailed, results.Failures[0].FailureType);
             Assert.AreEqual("6 is no good", results.Failures[0].Reason);
+        }
+
+        [TestMethod]
+        public void Converter_ManualFieldUpdate()
+        {
+            bool changedRegistered = false;
+            // This converter is manually updating the field itself: make sure our comparison uses the original value
+            mapper.AddMap(vm => vm.Parent, db => db.ParentId).HasConverter((SampleEntity t, SampleContext ctx, SampleSummaryViewModel value) =>
+            {
+                t.ParentId = 5;
+                return new FieldMapConversionResult<int?> { Value = 5 };
+            }).HasPostMap((target, ctx, map, operation) => changedRegistered = true);
+
+            source.Parent = new SampleSummaryViewModel { Id = 4 };
+            var results = mapper.Map(source.ToPatchOperations(), target, new SampleContext());
+            Assert.AreEqual(true, results.Succeeded);
+            Assert.AreEqual(true, changedRegistered);
         }
 
         [TestMethod]

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,34 +19,32 @@ namespace EF6AspNetWebApi
         public static void InitializeAndBuildProvider(IServiceCollection serviceCollection = null)
         {
             var services = serviceCollection ?? new ServiceCollection();
-            services.AddScoped((sp) => new ExampleContext());
 
-            var serilog = new LoggerConfiguration().ReadFrom.AppSettings();
+            var serilog = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithEnvironmentUserName()
+                .Enrich.WithExceptionDetails()
+                .Enrich.WithDemystifiedStackTraces()
+                .ReadFrom.AppSettings();
             Log.Logger = serilog.CreateLogger();
             services.AddLogging(builder => builder.AddSerilog(dispose: true));
+
+            services.AddTransient<ExampleContext>();
 
             ServiceProvider = services.BuildServiceProvider();
             LoggerFactory = ServiceProvider.GetService<ILoggerFactory>();
 
-            using (var context = GetDbContext())
+            using (var db = ServiceProvider.GetRequiredService<ExampleContext>())
             {
-                ExampleContextMetadata.Build(context);
+                ExampleContextMetadata.Build(db);
             }
         }
 
-        public static ExampleContext GetDbContext()
-        {
-            var dbContext = new ExampleContext();
-            var logger = LoggerFactory.CreateLogger<ExampleContext>();
-            dbContext.Database.Log = (s => logger.LogTrace(s));
-
-            return dbContext;
-        }
-
-        public static void LogInformation<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogInformation(message));
-        public static void LogDebug<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogDebug(message));
+        public static void LogInformation<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogInformation(message), context);
+        public static void LogDebug<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogDebug(message), context);
         public static void LogError<T>(string message, params (string key, object value)[] context) => LogException<T>(null, message, context);
-        public static void LogException<T>(Exception ex, string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogError(ex, message));
+        public static void LogException<T>(Exception ex, string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogError(ex, message), context);
         private static void LogMessage<T>(Action<ILogger<T>> action, params (string key, object value)[] context)
         {
             var logger = LoggerFactory.CreateLogger<T>();

@@ -4,6 +4,7 @@ using EF6AspNetWebApi.Web.Handlers;
 using EF6AspNetWebApi.Web.Swashbuckle;
 using Microsoft.AspNet.OData.Extensions;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.Application;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace EF6AspNetWebApi.Web
                 config.EnableDependencyInjection();  //For OData parameters
 
                 config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StringEnumConverter());
+                (config.Formatters.JsonFormatter.SerializerSettings.ContractResolver as DefaultContractResolver).IgnoreSerializableAttribute = true;
 
                 config.Filters.Add(new ItemNotFoundExceptionFilterAttribute());
                 config.Filters.Add(new JsonPatchParseExceptionFilterAttribute());

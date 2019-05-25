@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace EF6AspNetWebApi
 {
-    public abstract class BasePatchCommand<TSource, TTarget, TContext> : BaseCommand
+    public abstract class PatchCommandBase<TSource, TTarget, TContext> : CommandBase
         where TSource : class
         where TTarget : class
-        where TContext : BasePatchContext, new()
+        where TContext : PatchContextBase, new()
     {
         protected static readonly Mapper<TSource, TTarget, TContext> mapper = new Mapper<TSource, TTarget, TContext>();
 
-        static BasePatchCommand()
+        static PatchCommandBase()
         {
             mapper.MapTargetHasChanged = (TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object originalValue, object newValue) =>
             {
@@ -51,7 +51,7 @@ namespace EF6AspNetWebApi
                 return new FieldMapValueValidResult { IsValid = true };
             };
         }
-        public BasePatchCommand(ExampleContext dbContext) : base(dbContext) { }
+        public PatchCommandBase(ExampleContext dbContext) : base(dbContext) { }
 
         protected (TTarget dbItem, bool isNew) GetEntity<TId>(TId id, Func<IEnumerable<TTarget>> entitySearch, Func<TTarget> newFactory)
         {
@@ -68,33 +68,40 @@ namespace EF6AspNetWebApi
             };
         }
 
-        protected PatchCommandResult<T> GeneratePatchResult<T>(MapResult<TTarget, TContext> mapResult, Func<(bool isNew, string id, T entity)> onSuccess)
+        protected T GeneratePatchResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<T> onSuccess) where T : PatchCommandResult, new()
         {
-            if (mapResult.Succeeded && !mapResult.Context.ValidationResults.Any())
-            {
-                var (isNew, id, entity) = onSuccess();
-                return new PatchCommandResult<T> { IsNew = isNew, EntityId = id, Entity = entity };
-            }
-            else
-            {
-                foreach (var f in mapResult.Failures)
-                {
-                    switch (f.FailureType)
-                    {
-                        case MapResultFailureType.Required:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.Map.Label} is required");
-                            break;
-                        case MapResultFailureType.JsonPatchValueNotParsable:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.PatchOperation.JsonPatch.value} is not a valid value for ${f.Map.Label}");
-                            break;
-                        default:
-                            mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.Map.Label} {f.Reason}");
-                            break;
-                    }
-                }
+            return mapResult.Succeeded && !mapResult.Context.ValidationResults.Any()
+                ? onSuccess()
+                : GenerateValidationCommandResult<T>(dbItem, mapResult);
+        }
 
-                return new PatchCommandResult<T> { ValidationResults = mapResult.Context.ValidationResults };
+        protected async Task<T> GeneratePatchResultAsync<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult, Func<Task<T>> onSuccess) where T : PatchCommandResult, new()
+        {
+            return mapResult.Succeeded && !mapResult.Context.ValidationResults.Any()
+                ? await onSuccess().ConfigureAwait(false)
+                : GenerateValidationCommandResult<T>(dbItem, mapResult);
+        }
+
+        private T GenerateValidationCommandResult<T>(TTarget dbItem, MapResult<TTarget, TContext> mapResult) where T : PatchCommandResult, new()
+        {
+            foreach (var f in mapResult.Failures)
+            {
+                var label = f.Map.GenerateLabel(dbItem, mapResult.Context);
+                switch (f.FailureType)
+                {
+                    case MapResultFailureType.Required:
+                        mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} is required");
+                        break;
+                    case MapResultFailureType.JsonPatchValueNotParsable:
+                        mapResult.Context.AddValidationResult(f.PatchOperation, $"{f.PatchOperation.JsonPatch.value} is not a valid value for ${label}");
+                        break;
+                    default:
+                        mapResult.Context.AddValidationResult(f.PatchOperation, $"{label} {f.Reason}");
+                        break;
+                }
             }
+
+            return new T { ValidationResults = mapResult.Context.ValidationResults };
         }
     }
 }

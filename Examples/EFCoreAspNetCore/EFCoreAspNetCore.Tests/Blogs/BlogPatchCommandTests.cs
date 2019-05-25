@@ -11,7 +11,7 @@ using System.Text;
 namespace EFCoreAspNetCore.Tests.Blogs
 {
     [TestClass]
-    public class BlogPatchCommandTests : BaseTest
+    public class BlogPatchCommandTests : TestBase
     {
         [TestMethod]
         public void Validates()

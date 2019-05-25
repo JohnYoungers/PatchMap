@@ -29,7 +29,7 @@ namespace EFCoreAspNetCore
             }
             else
             {
-                var results = query.ToArray();
+                var results = filteredQuery.ToArray();
                 if (!results.Any())
                 {
                     return (default(TTarget), "could not be found");

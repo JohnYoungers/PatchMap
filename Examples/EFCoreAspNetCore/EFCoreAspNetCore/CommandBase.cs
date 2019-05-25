@@ -8,11 +8,11 @@ using System.Linq.Expressions;
 
 namespace EFCoreAspNetCore
 {
-    public abstract class BaseCommand
+    public abstract class CommandBase
     {
         protected ExampleContext DbContext { get; private set; }
 
-        public BaseCommand(ExampleContext dbContext)
+        public CommandBase(ExampleContext dbContext)
         {
             DbContext = dbContext;
         }

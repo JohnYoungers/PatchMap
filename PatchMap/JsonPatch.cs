@@ -47,11 +47,6 @@ namespace PatchMap
                 currentType = currentProperty.PropertyType;
                 if (typeof(IEnumerable).IsAssignableFrom(currentType) && currentType != typeof(string))
                 {
-                    if (currentType.IsGenericType)
-                    {
-                        currentType = currentType.GetGenericArguments()[0];
-                    }
-
                     if (patch.op == PatchOperationTypes.remove)
                     {
                         if (patch.value != null)
@@ -67,6 +62,10 @@ namespace PatchMap
                     if (!isLastPart())
                     {
                         collectionKey = splitPath[++i];
+                        if (currentType.IsGenericType)
+                        {
+                            currentType = currentType.GetGenericArguments()[0];
+                        }
                     }
                 }
                 else
@@ -119,7 +118,18 @@ namespace PatchMap
                     //Convert value to null if it's an empty string and the target type is not string
                     var objValue = (patch.value is string && conversionType != typeof(string) && string.IsNullOrEmpty(patch.value as string)) ? null : patch.value;
 
-                    result.Value = (objValue == null && currentType != conversionType) ? null : Convert.ChangeType(objValue, conversionType);
+                    if (objValue == null && currentType != conversionType)
+                    {
+                        result.Value = null;
+                    }
+                    else if (conversionType == typeof(Guid) && objValue is string guid)
+                    {
+                        result.Value = Guid.Parse(guid);
+                    }
+                    else
+                    {
+                        result.Value = Convert.ChangeType(objValue, conversionType);
+                    }
                 }
                 catch (Exception ex) when (ex is FormatException || ex is InvalidCastException || ex is ArithmeticException)
                 {

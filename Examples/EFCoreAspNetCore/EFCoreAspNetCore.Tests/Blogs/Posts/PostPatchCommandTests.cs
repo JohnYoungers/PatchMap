@@ -12,7 +12,7 @@ using System.Text;
 namespace EFCoreAspNetCore.Tests.Blogs
 {
     [TestClass]
-    public class PostPatchCommandTests : BaseTest
+    public class PostPatchCommandTests : TestBase
     {
         [TestMethod]
         public void Validates()

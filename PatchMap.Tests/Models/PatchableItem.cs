@@ -11,6 +11,7 @@ namespace PatchMap.Tests.Models
     {
         public int IntValue { get; set; }
         public int? NullableIntValue { get; set; }
+        public Guid? NullableGuidValue { get; set; }
         public string StringValue { get; set; }
 
         [PatchIgnore]

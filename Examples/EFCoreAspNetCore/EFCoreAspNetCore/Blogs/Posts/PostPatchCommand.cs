@@ -10,7 +10,7 @@ using PatchMap.Mapping;
 
 namespace EFCoreAspNetCore.Blogs.Posts
 {
-    public class PostPatchCommand : BasePatchCommand<PostViewModel, Post, BasePatchContext>
+    public class PostPatchCommand : PatchCommandBase<PostViewModel, Post, PatchContextBase>
     {
         static PostPatchCommand()
         {
@@ -56,10 +56,10 @@ namespace EFCoreAspNetCore.Blogs.Posts
 
             var results = mapper.Map(operations, dbItem, GenerateContext(isNew));
 
-            return GeneratePatchResult(results, () =>
+            return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
-                return (isNew, dbItem.PostId.ToString(), PostViewModel.Map().Invoke(dbItem));
+                return new PatchCommandResult<PostViewModel>(isNew, dbItem.PostId.ToString(), PostViewModel.Map().Invoke(dbItem));
             });
         }
     }

@@ -16,7 +16,7 @@ namespace EF6AspNetWebApi.Web.Handlers
 
         public VersionHandler()
         {
-            var assembly = Assembly.GetAssembly(typeof(BaseCommand));
+            var assembly = Assembly.GetAssembly(typeof(CommandBase));
             var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             Version = fileVersionInfo.ProductVersion;
         }

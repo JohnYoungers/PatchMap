@@ -15,7 +15,7 @@ namespace PatchMap
         public PatchOperationPropertyTree PropertyTree { get; set; }
         public object Value { get; set; }
 
-        public static PatchOperation Create<T, Y>(T source, Expression<Func<T, Y>> field)
+        public static PatchOperation Create<T, Y>(T entity, Expression<Func<T, Y>> field)
         {
             var properties = new Stack<PatchOperationPropertyTree>();
             var memberExp = field.Body as MemberExpression ?? (field.Body as UnaryExpression)?.Operand as MemberExpression;
@@ -27,7 +27,7 @@ namespace PatchMap
 
             var operation = new PatchOperation();
             PatchOperationPropertyTree currentProperty = null;
-            object currentValue = source;
+            object currentValue = entity;
             while (properties.Any())
             {
                 var prop = properties.Pop();

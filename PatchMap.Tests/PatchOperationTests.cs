@@ -60,7 +60,7 @@ namespace PatchMap.Tests
 
         [TestMethod]
         public void ManualCreate_FromValue()
-        {
+        { 
             var op1 = PatchOperation<PatchableItem>.Create(i => i.IntValue, 2);
             var op2 = PatchOperation<PatchableItem>.Create(i => i.CantUpdateInOnePatch.Code, "A");
 

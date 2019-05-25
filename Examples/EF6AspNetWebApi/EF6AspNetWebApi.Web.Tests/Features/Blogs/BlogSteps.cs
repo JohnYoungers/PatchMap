@@ -1,5 +1,6 @@
 ﻿using EF6AspNetWebApi.Data;
 using EF6AspNetWebApi.Web.Tests.Contexts;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace EF6AspNetWebApi.Web.Tests.Features.Blogs
         [Given(@"a new blog exists with placeholder blogId and first post placeholder postId")]
         public void GivenANewAgencyExistsForCompany()
         {
-            using (var dbContext = Application.GetDbContext())
+            using (var dbContext = Application.ServiceProvider.GetRequiredService<ExampleContext>())
             {
                 var dbBlog = dbContext.Blogs.Add(EF6AspNetWebApi.Tests.SampleData.Blogs.Generic());
                 dbBlog.Posts.Add(new Post { Title = "A", Content = "B", DateCreated = DateTimeOffset.Now });
@@ -33,6 +34,7 @@ namespace EF6AspNetWebApi.Web.Tests.Features.Blogs
                 context.AddPlaceholderValue("blogId", dbBlog.BlogId.ToString());
                 context.AddPlaceholderValue("postId", dbBlog.Posts[0].PostId.ToString());
             }
+
         }
     }
 }

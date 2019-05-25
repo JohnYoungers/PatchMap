@@ -33,7 +33,7 @@ namespace EFCoreAspNetCore.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            Application.InitializeServices(services, Configuration);
+            Application.AddServices(services, Configuration);
 
             services.AddOData();
 
@@ -69,7 +69,7 @@ namespace EFCoreAspNetCore.Web
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            Application.FinalizeInitialization(app.ApplicationServices);
+            Application.Configure(app.ApplicationServices);
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
