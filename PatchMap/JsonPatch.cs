@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using PatchMap.Exceptions;
+﻿using PatchMap.Exceptions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,9 +8,15 @@ using System.Text;
 
 namespace PatchMap
 {
+    public delegate bool ValueIsParsable(object obj);
+    public delegate object ParseValue(object obj, Type targetType);
+
     [Serializable]
     public class JsonPatch
     {
+        public static ValueIsParsable ValueIsParsable { get; set; } = (o) => false;
+        public static ParseValue ParseValue { get; set; } = (o, t) => o;
+
         public PatchOperationTypes op { get; set; }
         public string path { get; set; }
         public object value { get; set; }
@@ -106,9 +111,9 @@ namespace PatchMap
                 throw new JsonPatchParseException(patch, $"Path {patch.path} is not valid");
             }
 
-            if (patch.value is JToken)
+            if (JsonPatch.ValueIsParsable(patch.value))
             {
-                result.Value = (patch.value as JToken).ToObject(currentType);
+                result.Value = JsonPatch.ParseValue(patch.value, currentType);
             }
             else
             {

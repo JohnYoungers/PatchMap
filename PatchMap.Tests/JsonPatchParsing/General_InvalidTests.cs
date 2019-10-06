@@ -1,32 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PatchMap.Exceptions;
 using PatchMap.Tests.Models;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace PatchMap.Tests
+namespace PatchMap.Tests.JsonPatchParsing
 {
-    [TestClass]
-    public class JsonPatchParsing_InvalidTests
+    public abstract class General_InvalidTests
     {
-        [TestMethod]
-        public void JsonPatchParseExceptionSerializes()
-        {
-            var ex = new JsonPatchParseException(new JsonPatch { path = "A/B/C" }, "My Message");
-
-            string exceptionToString = ex.ToString();
-
-            var bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            using (var ms = new System.IO.MemoryStream())
-            {
-                bf.Serialize(ms, ex);
-                ms.Seek(0, 0);
-                ex = (JsonPatchParseException)bf.Deserialize(ms);
-            }
-
-            Assert.AreEqual(exceptionToString, ex.ToString());
-            Assert.AreEqual("A/B/C", ex.Patch.path);
-        }
-
         [TestMethod]
         public void SimpleValueCannotBeParsed()
         {
@@ -46,6 +28,25 @@ namespace PatchMap.Tests
             Assert.AreEqual(false, operations[2].JsonPatchValueParsed);
             Assert.AreEqual(false, operations[3].JsonPatchValueParsed);
             Assert.AreEqual(false, operations[4].JsonPatchValueParsed);
+        }
+        [TestMethod]
+
+        public void JsonPatchParseExceptionSerializes()
+        {
+            var ex = new JsonPatchParseException(new JsonPatch { path = "A/B/C" }, "My Message");
+
+            string exceptionToString = ex.ToString();
+
+            var bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            using (var ms = new System.IO.MemoryStream())
+            {
+                bf.Serialize(ms, ex);
+                ms.Seek(0, 0);
+                ex = (JsonPatchParseException)bf.Deserialize(ms);
+            }
+
+            Assert.AreEqual(exceptionToString, ex.ToString());
+            Assert.AreEqual("A/B/C", ex.Patch.path);
         }
 
         [TestMethod]
