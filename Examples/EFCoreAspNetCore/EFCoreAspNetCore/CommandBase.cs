@@ -1,6 +1,5 @@
 ﻿using EFCoreAspNetCore.Data;
 using EFCoreAspNetCore.Exceptions;
-using LinqKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;

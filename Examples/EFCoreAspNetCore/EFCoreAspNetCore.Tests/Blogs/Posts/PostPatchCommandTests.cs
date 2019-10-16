@@ -61,7 +61,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             Assert.AreEqual(true, results.IsNew);
             Assert.AreEqual(nextId.ToString(), results.EntityId);
 
-            var refreshedPost = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, results.Entity.Id);
+            var refreshedPost = new PostQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId, results.Entity.Id);
             Assert.AreEqual(post.Title, refreshedPost.Title);
             Assert.AreEqual(post.Content, refreshedPost.Content);
             DatesAreSimilar(DateTimeOffset.Now, refreshedPost.Created);
@@ -85,7 +85,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
 
             var dbPost = dbBlog.Entity.Posts.First();
             var dbPost2 = dbBlog.Entity.Posts.Skip(1).First();
-            var post = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
+            var post = new PostQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
             post.Title = post.Title + "Updated";
             post.Content = post.Content + "Updated";
             post.UpdatedAsOfDate = DateTimeOffset.Now;
@@ -96,7 +96,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             Assert.IsTrue(results.Succeeded);
             Assert.AreEqual(false, results.IsNew);
 
-            var refreshedPost = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
+            var refreshedPost = new PostQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
             //These fields can only be set on insert
             Assert.AreEqual("A", refreshedPost.Title);
             Assert.AreEqual("B", refreshedPost.Content);

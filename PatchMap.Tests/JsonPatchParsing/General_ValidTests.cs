@@ -2,6 +2,7 @@
 using PatchMap.Tests.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PatchMap.Tests.JsonPatchParsing
@@ -16,7 +17,7 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "/intvalue", value = 1 },
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
             Assert.AreEqual(1, operations[0].Value);
         }
 
@@ -28,8 +29,8 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "intvalue", value = 1 }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(nameof(PatchableItem.IntValue), operations[0].PropertyTree.Property.Name);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(nameof(PatchableItem.IntValue), operations[0].PropertyPath.Property.Name);
         }
 
         [TestMethod]
@@ -42,7 +43,7 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "IntValue", value = "" },
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
             Assert.AreEqual(null, operations[0].Value);
             Assert.AreEqual("", operations[1].Value);
             Assert.AreEqual(null, operations[2].Value);
@@ -58,15 +59,15 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.remove, path = "subitems/hello world" }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[0].PropertyTree.Property.Name);
-            Assert.AreEqual(null, operations[0].PropertyTree.CollectionKey);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[0].PropertyPath.Property.Name);
+            Assert.AreEqual(null, operations[0].PropertyPath.CollectionKey);
 
-            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[1].PropertyTree.Property.Name);
-            Assert.AreEqual("hello world", operations[1].PropertyTree.CollectionKey);
+            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[1].PropertyPath.Property.Name);
+            Assert.AreEqual("hello world", operations[1].PropertyPath.CollectionKey);
 
-            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[2].PropertyTree.Property.Name);
-            Assert.AreEqual("hello world", operations[2].PropertyTree.CollectionKey);
+            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[2].PropertyPath.Property.Name);
+            Assert.AreEqual("hello world", operations[2].PropertyPath.CollectionKey);
         }
 
         [TestMethod]
@@ -78,13 +79,13 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch() { op = PatchOperationTypes.replace, path = "subitems/a/children/b/children/c", value = subItem }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[0].PropertyTree.Property.Name);
-            Assert.AreEqual("a", operations[0].PropertyTree.CollectionKey);
-            Assert.AreEqual(nameof(PatchableCircularReferenceItem.Children), operations[0].PropertyTree.Next.Property.Name);
-            Assert.AreEqual("b", operations[0].PropertyTree.Next.CollectionKey);
-            Assert.AreEqual(nameof(PatchableCircularReferenceItem.Children), operations[0].PropertyTree.Next.Next.Property.Name);
-            Assert.AreEqual("c", operations[0].PropertyTree.Next.Next.CollectionKey);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[0].PropertyPath.Property.Name);
+            Assert.AreEqual("a", operations[0].PropertyPath.CollectionKey);
+            Assert.AreEqual(nameof(PatchableCircularReferenceItem.Children), operations[0].PropertyPath.Next.Property.Name);
+            Assert.AreEqual("b", operations[0].PropertyPath.Next.CollectionKey);
+            Assert.AreEqual(nameof(PatchableCircularReferenceItem.Children), operations[0].PropertyPath.Next.Next.Property.Name);
+            Assert.AreEqual("c", operations[0].PropertyPath.Next.Next.CollectionKey);
             Assert.AreEqual(subItem, operations[0].Value);
         }
 
@@ -97,9 +98,9 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = $"subitems/{escapedKey}/code", value = "d" }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[0].PropertyTree.Property.Name);
-            Assert.AreEqual(escapedKey.Replace("\\", ""), operations[0].PropertyTree.CollectionKey);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(nameof(PatchableItem.SubItems), operations[0].PropertyPath.Property.Name);
+            Assert.AreEqual(escapedKey.Replace("\\", ""), operations[0].PropertyPath.CollectionKey);
         }
 
         [TestMethod]
@@ -110,8 +111,8 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "CantUpdateInOnePatch/Code", value = "A" }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(1, operations.Count);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(1, operations.Length);
         }
 
         [TestMethod]
@@ -124,8 +125,8 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems/MyId", value = new PatchableCircularReferenceItem() }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(3, operations.Count);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(3, operations.Length);
         }
     }
 }

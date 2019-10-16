@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using EFCoreAspNetCore.Blogs.Posts;
 using EFCoreAspNetCore.Data;
-using LinqKit;
 using PatchMap;
 using PatchMap.Mapping;
 

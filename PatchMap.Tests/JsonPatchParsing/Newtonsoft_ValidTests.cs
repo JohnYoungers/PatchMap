@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using PatchMap.Tests.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PatchMap.Tests.JsonPatchParsing
@@ -31,7 +32,7 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems/Item A", value = JToken.Parse("{ Code: 'A', Description: 'B'}")}
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
             Assert.AreEqual(1, operations[0].Value);
             Assert.AreEqual(true, operations[0].JsonPatchValueParsed);
             Assert.AreEqual(1, operations[1].Value);
@@ -58,8 +59,8 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems", value = JArray.Parse("[{ Code: 'A', Description: 'B'}, { Code: 'C', Description: 'D'}]") },
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(2, operations.Count);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(2, operations.Length);
             CollectionAssert.AreEqual(new List<string> { "A", "B" }, (List<string>)operations[0].Value);
 
             var op2Values = (List<PatchableCircularReferenceItem>)operations[1].Value;

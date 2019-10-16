@@ -14,13 +14,13 @@ namespace EFCoreAspNetCore.Tests.Blogs
         [TestMethod]
         public void NotFound()
         {
-            Assert.ThrowsException<ItemNotFoundException>(() => new BlogGetCommand(dbContext).Execute(1111111));
+            Assert.ThrowsException<ItemNotFoundException>(() => new BlogQueryCommand(dbContext).Execute(1111111));
         }
 
         [TestMethod]
         public void Execute_ById()
         {
-            var results = new BlogGetCommand(dbContext).Execute(1);
+            var results = new BlogQueryCommand(dbContext).Execute(1);
 
             //Full map is tested in Search command
             Assert.AreEqual("Seed Blog", results.Name);
@@ -29,7 +29,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
         [TestMethod]
         public void Query_FiltersAndMaps()
         {
-            var results = new BlogGetCommand(dbContext).Execute((query) => (query as IQueryable<Data.Blog>).Where(b => b.BlogId == 1));
+            var results = new BlogQueryCommand(dbContext).Execute((query) => (query as IQueryable<Data.Blog>).Where(b => b.BlogId == 1));
 
             Assert.AreEqual(1, results.Count);
 

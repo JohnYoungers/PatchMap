@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,16 +17,6 @@ namespace EFCoreAspNetCore
 
         public static void AddServices(IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            var serilog = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .Enrich.WithMachineName()
-                .Enrich.WithEnvironmentUserName()
-                .Enrich.WithExceptionDetails()
-                .Enrich.WithDemystifiedStackTraces()
-                .ReadFrom.Configuration(configuration);
-            Log.Logger = serilog.CreateLogger();
-            serviceCollection.AddLogging(builder => builder.AddSerilog(dispose: true));
-
             serviceCollection.AddDbContext<ExampleContext>(options => options.UseSqlServer(configuration.GetConnectionString("EFCore")));
         }
         public static void Configure(IServiceProvider serviceProvider)

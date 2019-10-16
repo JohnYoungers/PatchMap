@@ -52,7 +52,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             Assert.AreEqual(true, results.IsNew);
             Assert.AreEqual(nextId.ToString(), results.EntityId);
 
-            var refreshedBlog = new BlogGetCommand(dbContext).Execute(results.Entity.Id);
+            var refreshedBlog = new BlogQueryCommand(dbContext).Execute(results.Entity.Id);
             Assert.AreEqual(blog.Name, refreshedBlog.Name);
             Assert.AreEqual(blog.Url, refreshedBlog.Url);
             CollectionAssert.AreEqual(new[] { "A", "B", "C" }, refreshedBlog.Tags);
@@ -71,7 +71,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             dbBlog.Entity.Posts.Add(new Data.Post { Title = "A", Content = "B", DateCreated = DateTimeOffset.Now });
             dbContext.SaveChanges();
 
-            var blog = new BlogGetCommand(dbContext).Execute(dbBlog.Entity.BlogId);
+            var blog = new BlogQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId);
             blog.Name = blog.Name + "Updated";
             blog.Tags = new List<string> { "A", "D" };
             blog.PromotedPost = new PostSummaryViewModel { Id = dbBlog.Entity.Posts[0].PostId };
@@ -81,7 +81,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             Assert.IsTrue(results.Succeeded);
             Assert.AreEqual(false, results.IsNew);
 
-            var refreshedBlog = new BlogGetCommand(dbContext).Execute(results.Entity.Id);
+            var refreshedBlog = new BlogQueryCommand(dbContext).Execute(results.Entity.Id);
             Assert.AreEqual(blog.Name, refreshedBlog.Name);
             CollectionAssert.AreEqual(new[] { "A", "D" }, refreshedBlog.Tags);
             Assert.AreEqual("A", refreshedBlog.PromotedPost.Title);

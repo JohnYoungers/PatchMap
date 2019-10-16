@@ -6,8 +6,8 @@ namespace PatchMap.Mapping
 {
     public class FieldMapConversionResult<T>
     {
-        public T Value { get; set; }
-        public string FailureReason { get; set; }
-        public bool Succeeded { get => string.IsNullOrEmpty(FailureReason); }
+        public T Value { get; set; } = default!;  // TODO: find a way to indicate this is nullable
+        public string? FailureReason { get; set; }
+        public bool Succeeded { get => FailureReason == null; }
     }
 }

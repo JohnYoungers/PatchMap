@@ -1,5 +1,5 @@
-﻿using EFCoreAspNetCore.Blogs.Posts;
-using LinqKit;
+﻿using DynamicExpressions.Mapping;
+using EFCoreAspNetCore.Blogs.Posts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +14,12 @@ namespace EFCoreAspNetCore.Blogs
         public string Name { get; set; }
         public string Url { get; set; }
 
-        public static Expression<Func<Data.Blog, BlogSummaryViewModel>> Map()
+        public static Expression<Func<Data.Blog, BlogSummaryViewModel>> Map = i => new BlogSummaryViewModel
         {
-            return i => new BlogSummaryViewModel
-            {
-                Id = i.BlogId,
-                Name = i.Name,
-                Url = i.Url
-            };
-        }
+            Id = i.BlogId,
+            Name = i.Name,
+            Url = i.Url
+        };
     }
 
     public class BlogViewModel : BlogSummaryViewModel
@@ -31,19 +28,11 @@ namespace EFCoreAspNetCore.Blogs
         public List<PostSummaryViewModel> Posts { get; set; } = new List<PostSummaryViewModel>();
         public PostSummaryViewModel PromotedPost { get; set; }
 
-        public new static Expression<Func<Data.Blog, BlogViewModel>> Map()
+        public new static Expression<Func<Data.Blog, BlogViewModel>> Map = BlogSummaryViewModel.Map.Concat(i => new BlogViewModel
         {
-            var postMapper = PostSummaryViewModel.Map();
-
-            return i => new BlogViewModel
-            {
-                Id = i.BlogId,
-                Name = i.Name,
-                Url = i.Url,
-                Tags = i.Tags.OrderBy(t => t.Name).Select(t => t.Name).ToList(),
-                Posts = i.Posts.OrderByDescending(p => p.DateCreated).Select(p => postMapper.Invoke(p)).ToList(),
-                PromotedPost = i.PromotedPostId == null ? null : postMapper.Invoke(i.PromotedPost)
-            };
-        }
+            Tags = i.Tags.OrderBy(t => t.Name).Select(t => t.Name).ToList(),
+            Posts = i.Posts.OrderByDescending(p => p.DateCreated).Select(p => PostSummaryViewModel.Map.Invoke(p)).ToList(),
+            PromotedPost = i.PromotedPostId == null ? null : PostSummaryViewModel.Map.Invoke(i.PromotedPost)
+        }).Flatten();
     }
 }

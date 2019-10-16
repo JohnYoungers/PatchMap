@@ -3,6 +3,8 @@
   <PropertyGroup>
     <VersionPrefix>3.0.0</VersionPrefix>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <Authors>John Youngers</Authors>
     <Company>Youngers Consulting</Company>
     <Description>.Net library to handle updating entities at the field level</Description>

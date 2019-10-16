@@ -2,6 +2,7 @@
 using PatchMap.Tests.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -31,7 +32,7 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems/Item A", value = JsonDocument.Parse(@"{ ""Code"": ""A"", ""Description"": ""B""}").RootElement }
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
             Assert.AreEqual(1, operations[0].Value);
             Assert.AreEqual(true, operations[0].JsonPatchValueParsed);
             Assert.AreEqual(1, operations[1].Value);
@@ -58,8 +59,8 @@ namespace PatchMap.Tests.JsonPatchParsing
                 new JsonPatch { op = PatchOperationTypes.replace, path = "SubItems", value = JsonDocument.Parse(@"[{ ""Code"": ""A"", ""Description"": ""B""}, { ""Code"": ""C"", ""Description"": ""D""}]").RootElement },
             };
 
-            var operations = patches.ToPatchOperations<PatchableItem>();
-            Assert.AreEqual(2, operations.Count);
+            var operations = patches.ToPatchOperations<PatchableItem>().ToArray();
+            Assert.AreEqual(2, operations.Length);
             CollectionAssert.AreEqual(new List<string> { "A", "B" }, (List<string>)operations[0].Value);
 
             var op2Values = (List<PatchableCircularReferenceItem>)operations[1].Value;

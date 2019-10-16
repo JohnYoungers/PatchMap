@@ -15,13 +15,13 @@ namespace EFCoreAspNetCore.Tests.Blogs
         [TestMethod]
         public void NotFound()
         {
-            Assert.ThrowsException<ItemNotFoundException>(() => new PostGetCommand(dbContext).Execute(1, 1111111));
+            Assert.ThrowsException<ItemNotFoundException>(() => new PostQueryCommand(dbContext).Execute(1, 1111111));
         }
 
         [TestMethod]
         public void Execute_ById()
         {
-            var results = new PostGetCommand(dbContext).Execute(1, 1);
+            var results = new PostQueryCommand(dbContext).Execute(1, 1);
 
             //Full map is tested in Search command
             Assert.AreEqual(1, results.Id);
@@ -30,7 +30,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
         [TestMethod]
         public void Query_FiltersAndMaps()
         {
-            var results = new PostGetCommand(dbContext).Execute(1, (query) => (query as IQueryable<Data.Post>).OrderByDescending(p => p.PostId));
+            var results = new PostQueryCommand(dbContext).Execute(1, (query) => (query as IQueryable<Data.Post>).OrderByDescending(p => p.PostId));
 
             Assert.AreEqual(2, results.Count);
 

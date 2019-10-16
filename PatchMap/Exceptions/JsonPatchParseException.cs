@@ -17,7 +17,7 @@ namespace PatchMap.Exceptions
 
         protected JsonPatchParseException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            Patch = info.GetValue(nameof(Patch), typeof(JsonPatch)) as JsonPatch;
+            Patch = (JsonPatch)info.GetValue(nameof(Patch), typeof(JsonPatch));
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
