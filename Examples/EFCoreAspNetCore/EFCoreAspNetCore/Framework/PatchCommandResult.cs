@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 
-namespace EFCoreAspNetCore
+namespace EFCoreAspNetCore.Framework
 {
     public class PatchCommandResult
     {

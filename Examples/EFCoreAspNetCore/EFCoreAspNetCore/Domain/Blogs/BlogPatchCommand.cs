@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using EFCoreAspNetCore.Blogs.Posts;
 using EFCoreAspNetCore.Data;
+using EFCoreAspNetCore.Framework;
 using PatchMap;
 using PatchMap.Mapping;
 
-namespace EFCoreAspNetCore.Blogs
+namespace EFCoreAspNetCore.Domain.Blogs
 {
     public class BlogPatchCommand : PatchCommandBase<BlogViewModel, Blog, PatchContextBase>
     {
@@ -57,7 +58,7 @@ namespace EFCoreAspNetCore.Blogs
             return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
-                return new PatchCommandResult<BlogViewModel>(isNew, dbItem.BlogId.ToString(), BlogViewModel.Map().Invoke(dbItem));
+                return new PatchCommandResult<BlogViewModel>(isNew, dbItem.BlogId.ToString(), Map(dbItem, BlogViewModel.Map));
             });
         }
     }

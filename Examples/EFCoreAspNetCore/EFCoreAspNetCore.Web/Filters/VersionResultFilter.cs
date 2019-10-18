@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.OData.Extensions;
+﻿using EFCoreAspNetCore.Framework;
+using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
 using System.Reflection;

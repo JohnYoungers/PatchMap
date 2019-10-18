@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EFCoreAspNetCore.Data;
+using EFCoreAspNetCore.Framework;
 
-namespace EFCoreAspNetCore.Blogs.Posts
+namespace EFCoreAspNetCore.Domain.Blogs.Posts
 {
     public class PostQueryCommand : CommandBase
     {
@@ -17,7 +18,7 @@ namespace EFCoreAspNetCore.Blogs.Posts
 
         public List<PostViewModel> Execute(int blogId, Func<IQueryable, IQueryable> filter = null)
         {
-            return FilterToList(DbContext.Blogs.Where(b => b.BlogId == blogId).SelectMany(b => b.Posts), filter, PostViewModel.Map);
+            return FilterToList(DbContext.Blogs.Where(b => b.BlogId == blogId).SelectMany(b => b.Posts), PostViewModel.Map, filter);
         }
     }
 }

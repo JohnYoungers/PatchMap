@@ -7,7 +7,7 @@ using EFCoreAspNetCore.Data;
 using PatchMap;
 using PatchMap.Mapping;
 
-namespace EFCoreAspNetCore
+namespace EFCoreAspNetCore.Framework
 {
     public abstract class PatchCommandBase<TSource, TTarget, TContext> : CommandBase
         where TSource : class
@@ -18,16 +18,16 @@ namespace EFCoreAspNetCore
 
         static PatchCommandBase()
         {
-            mapper.MapTargetHasChanged = (TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object originalValue, object newValue) =>
+            mapper.MapTargetHasChanged = (target, ctx, map, operation, originalValue, newValue) =>
             {
                 return ctx.IsNew || !Equals(originalValue, newValue);
             };
-            mapper.MapTargetIsRequired = (TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation) =>
+            mapper.MapTargetIsRequired = (target, ctx, map, operation) =>
             {
                 var targetProperty = map.TargetField.Last();
                 return !ExampleContextMetadata.Tables[targetProperty.DeclaringType][targetProperty.Name].Nullable;
             };
-            mapper.MapTargetValueIsValid = (TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation, object value) =>
+            mapper.MapTargetValueIsValid = (target, ctx, map, operation, value) =>
             {
                 if (value != null)
                 {
@@ -39,7 +39,7 @@ namespace EFCoreAspNetCore
                         return new FieldMapValueValidResult { FailureReason = $"length must be equal to or less than {columnDefinition.MaxLength} characters" };
                     }
                     if ((columnDefinition.ClrType == typeof(DateTimeOffset) || columnDefinition.ClrType == typeof(DateTimeOffset?))
-                         && (value as DateTimeOffset?) < SqlDateTime.MinValue.Value)
+                         && value as DateTimeOffset? < SqlDateTime.MinValue.Value)
                     {
                         return new FieldMapValueValidResult { FailureReason = $"must be on or after {SqlDateTime.MinValue.Value.ToShortDateString()}" };
                     }
@@ -49,12 +49,12 @@ namespace EFCoreAspNetCore
             };
         }
 
-        public PatchCommandBase(ExampleContext dbContext) : base(dbContext) { }
+        protected PatchCommandBase(ExampleContext dbContext) : base(dbContext) { }
 
         protected (TTarget dbItem, bool isNew) GetEntity<TId>(TId id, Func<IEnumerable<TTarget>> entitySearch, Func<TTarget> newFactory)
         {
             var isNew = Equals(id, default(TId));
-            return ((isNew) ? newFactory() : EnsureExists(entitySearch().FirstOrDefault()), isNew);
+            return (isNew ? newFactory() : EnsureExists(entitySearch().FirstOrDefault()), isNew);
         }
 
         protected TContext GenerateContext(bool isNew)

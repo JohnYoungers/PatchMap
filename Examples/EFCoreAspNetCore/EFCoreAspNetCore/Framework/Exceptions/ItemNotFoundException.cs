@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EFCoreAspNetCore.Exceptions
+namespace EFCoreAspNetCore.Framework.Exceptions
 {
     public class ItemNotFoundException : Exception
     {

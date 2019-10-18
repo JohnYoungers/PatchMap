@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EFCoreAspNetCore.Blogs.Posts;
 using EFCoreAspNetCore.Data;
+using EFCoreAspNetCore.Framework;
 using PatchMap;
 using PatchMap.Mapping;
 
-namespace EFCoreAspNetCore.Blogs.Posts
+namespace EFCoreAspNetCore.Domain.Blogs.Posts
 {
     public class PostPatchCommand : PatchCommandBase<PostViewModel, Post, PatchContextBase>
     {
@@ -30,7 +30,7 @@ namespace EFCoreAspNetCore.Blogs.Posts
                 });
             }, (target, ctx) =>
             {
-                if ((target.UpdatedAsOfDate.HasValue && !target.UpdatedPostId.HasValue) || (!target.UpdatedAsOfDate.HasValue && target.UpdatedPostId.HasValue))
+                if (target.UpdatedAsOfDate.HasValue && !target.UpdatedPostId.HasValue || !target.UpdatedAsOfDate.HasValue && target.UpdatedPostId.HasValue)
                 {
                     ctx.AddValidationResult($"Updated Post requires both a Post and an As Of Date", nameof(PostViewModel.UpdatedAsOfDate), nameof(PostViewModel.UpdatedPost));
                 }
@@ -58,7 +58,7 @@ namespace EFCoreAspNetCore.Blogs.Posts
             return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
-                return new PatchCommandResult<PostViewModel>(isNew, dbItem.PostId.ToString(), PostViewModel.Map().Invoke(dbItem));
+                return new PatchCommandResult<PostViewModel>(isNew, dbItem.PostId.ToString(), Map(dbItem, PostViewModel.Map));
             });
         }
     }

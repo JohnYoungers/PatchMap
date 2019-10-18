@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EFCoreAspNetCore.Blogs;
 using EFCoreAspNetCore.Data;
+using EFCoreAspNetCore.Domain.Blogs;
+using EFCoreAspNetCore.Framework;
 using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Mvc;
 using PatchMap;

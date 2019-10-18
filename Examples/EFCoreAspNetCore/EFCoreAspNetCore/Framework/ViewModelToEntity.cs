@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace EFCoreAspNetCore
+namespace EFCoreAspNetCore.Framework
 {
     public class ViewModelToEntity<TTarget>
     {

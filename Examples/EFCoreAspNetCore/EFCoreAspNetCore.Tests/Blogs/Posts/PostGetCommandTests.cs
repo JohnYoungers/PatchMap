@@ -1,6 +1,6 @@
 ﻿using EFCoreAspNetCore.Blogs;
-using EFCoreAspNetCore.Blogs.Posts;
-using EFCoreAspNetCore.Exceptions;
+using EFCoreAspNetCore.Domain.Blogs.Posts;
+using EFCoreAspNetCore.Framework.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

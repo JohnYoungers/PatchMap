@@ -24,11 +24,9 @@ namespace EFCoreAspNetCore
             ServiceProvider = serviceProvider;
             LoggerFactory = ServiceProvider.GetService<ILoggerFactory>();
 
-            using (var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.InitializeDatabase();
-            }
+            using var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
+            context.InitializeDatabase();
         }
 
         public static void LogInformation<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogInformation(message), context);

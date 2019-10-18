@@ -1,4 +1,4 @@
-﻿using EFCoreAspNetCore.Exceptions;
+﻿using EFCoreAspNetCore.Framework.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EFCoreAspNetCore.Data;
+using EFCoreAspNetCore.Framework;
 
-namespace EFCoreAspNetCore.Blogs
+namespace EFCoreAspNetCore.Domain.Blogs
 {
     public class BlogQueryCommand : CommandBase
     {
@@ -17,7 +18,7 @@ namespace EFCoreAspNetCore.Blogs
 
         public List<BlogViewModel> Execute(Func<IQueryable, IQueryable> filter = null)
         {
-            return FilterToList(DbContext.Blogs, filter, BlogViewModel.Map);
+            return FilterToList(DbContext.Blogs, BlogViewModel.Map, filter);
         }
     }
 }

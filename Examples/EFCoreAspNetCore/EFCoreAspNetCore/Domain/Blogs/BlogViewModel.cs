@@ -1,27 +1,13 @@
 ﻿using DynamicExpressions.Mapping;
-using EFCoreAspNetCore.Blogs.Posts;
+using EFCoreAspNetCore.Domain.Blogs.Posts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace EFCoreAspNetCore.Blogs
+namespace EFCoreAspNetCore.Domain.Blogs
 {
-    public class BlogSummaryViewModel
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Url { get; set; }
-
-        public static Expression<Func<Data.Blog, BlogSummaryViewModel>> Map = i => new BlogSummaryViewModel
-        {
-            Id = i.BlogId,
-            Name = i.Name,
-            Url = i.Url
-        };
-    }
-
     public class BlogViewModel : BlogSummaryViewModel
     {
         public List<string> Tags { get; set; } = new List<string>();

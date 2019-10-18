@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace EFCoreAspNetCore
+namespace EFCoreAspNetCore.Framework
 {
     public class PatchContextBase
     {
@@ -15,7 +15,7 @@ namespace EFCoreAspNetCore
 
         public void AddValidationResult(PatchOperation operation, string message)
         {
-            AddValidationResult(message, operation.PropertyTree.ToString());
+            AddValidationResult(message, operation.PropertyPath.ToString());
         }
 
         public void AddValidationResult(string message, params string[] properties)
