@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EFCoreAspNetCore.Blogs.Posts;
 using EFCoreAspNetCore.Data;
 using EFCoreAspNetCore.Framework;
+using Microsoft.EntityFrameworkCore;
 using PatchMap;
 using PatchMap.Mapping;
 
@@ -47,7 +47,7 @@ namespace EFCoreAspNetCore.Domain.Blogs
 
         public BlogPatchCommand(ExampleContext dbContext) : base(dbContext) { }
 
-        public PatchCommandResult<BlogViewModel> Execute(int? id, List<PatchOperation> operations)
+        public PatchCommandResult<BlogViewModel> Execute(int? id, IEnumerable<PatchOperation> operations)
         {
             var (dbItem, isNew) = GetEntity(id,
                 () => DbContext.Blogs.Where(b => b.BlogId == id),
@@ -58,7 +58,7 @@ namespace EFCoreAspNetCore.Domain.Blogs
             return GeneratePatchResult(dbItem, results, () =>
             {
                 DbContext.SaveChanges();
-                return new PatchCommandResult<BlogViewModel>(isNew, dbItem.BlogId.ToString(), Map(dbItem, BlogViewModel.Map));
+                return new PatchCommandResult<BlogViewModel>(isNew, dbItem.BlogId.ToString(), new BlogQueryCommand(DbContext).Execute(dbItem.BlogId));
             });
         }
     }

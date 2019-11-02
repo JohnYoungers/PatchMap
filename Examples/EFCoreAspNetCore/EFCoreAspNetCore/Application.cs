@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PatchMap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace EFCoreAspNetCore
 {
@@ -24,9 +26,12 @@ namespace EFCoreAspNetCore
             ServiceProvider = serviceProvider;
             LoggerFactory = ServiceProvider.GetService<ILoggerFactory>();
 
+            JsonPatch.ValueIsParsable = (o) => o is JsonElement;
+            JsonPatch.ParseValue = (o, t) => JsonSerializer.Deserialize(((JsonElement)o).GetRawText(), t);
+
             using var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
             var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-            context.InitializeDatabase();
+            context.InitializeDatabase(true);
         }
 
         public static void LogInformation<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogInformation(message), context);

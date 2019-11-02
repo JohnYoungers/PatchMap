@@ -39,7 +39,7 @@ namespace EFCoreAspNetCore.Domain.Blogs.Posts
 
         public PostPatchCommand(ExampleContext dbContext) : base(dbContext) { }
 
-        public PatchCommandResult<PostViewModel> Execute(int blogId, int? id, List<PatchOperation> operations)
+        public PatchCommandResult<PostViewModel> Execute(int blogId, int? id, IEnumerable<PatchOperation> operations)
         {
             var dbBlog = EnsureExists(DbContext.Blogs.FirstOrDefault(b => b.BlogId == blogId));
 
