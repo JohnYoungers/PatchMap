@@ -5,11 +5,9 @@ using System.Text;
 
 namespace PatchMap.Mapping
 {
-    public delegate void PostMapMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
-
     public class CompoundMap<TSource, TTarget, TContext> : Map<TTarget, TContext>
     {
-        protected internal PostMapMethod<TTarget, TContext> PostMap { get; protected set; }
+        protected internal PostMapMethod<TTarget, TContext>? PostMap { get; protected set; }
 
         public List<Map<TTarget, TContext>> Mappings { get; set; } = new List<Map<TTarget, TContext>>();
 
@@ -18,7 +16,7 @@ namespace PatchMap.Mapping
             return AddMap<TSourceProp, object>(sourceFieldExp, null);
         }
 
-        public FieldMap<TTarget, TContext, TSourceProp, TTargetProp> AddMap<TSourceProp, TTargetProp>(Expression<Func<TSource, TSourceProp>> sourceFieldExp, Expression<Func<TTarget, TTargetProp>> targetFieldExp)
+        public FieldMap<TTarget, TContext, TSourceProp, TTargetProp> AddMap<TSourceProp, TTargetProp>(Expression<Func<TSource, TSourceProp>> sourceFieldExp, Expression<Func<TTarget, TTargetProp>>? targetFieldExp)
         {
             var map = new FieldMap<TTarget, TContext, TSourceProp, TTargetProp>(sourceFieldExp, targetFieldExp);
             Mappings.Add(map);
@@ -49,6 +47,7 @@ namespace PatchMap.Mapping
         public CompoundMap<TSource, TTarget, TContext> HasPostMap(PostMapMethod<TTarget, TContext> postMap)
         {
             PostMap = postMap;
+
             return this;
         }
     }

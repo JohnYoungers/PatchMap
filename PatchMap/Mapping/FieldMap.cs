@@ -7,14 +7,6 @@ using System.Text.RegularExpressions;
 
 namespace PatchMap.Mapping
 {
-    public delegate FieldMapConversionResult<object> ConversionMethod<in TTarget, in TContext>(TTarget target, TContext ctx, object value);
-    public delegate FieldMapConversionResult<TTargetProp> ConversionMethod<in TTarget, in TContext, in TSourceProp, TTargetProp>(TTarget target, TContext ctx, TSourceProp value);
-    public delegate void FieldPostMapMethod<TTarget, TContext>(TTarget target, TContext ctx, FieldMap<TTarget, TContext> map, PatchOperation operation);
-
-    public delegate string LabelMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
-    public delegate bool EnabledMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
-    public delegate bool RequiredMethod<in TTarget, in TContext>(TTarget target, TContext ctx);
-
     internal static class CompiledRegexes
     {
         public static readonly Regex WordSeperator = new Regex("([a-z])([A-Z])", RegexOptions.Compiled);
@@ -26,17 +18,17 @@ namespace PatchMap.Mapping
         public List<PropertyInfo> TargetField { get; protected set; } = new List<PropertyInfo>();
         
         protected internal bool CollectionItem { get; protected set; }
-        protected internal LabelMethod<TTarget, TContext> LabelGenerator { get; protected set; }
-        protected internal EnabledMethod<TTarget, TContext> Enabled { get; protected set; }
-        protected internal RequiredMethod<TTarget, TContext> Required { get; protected set; }
-        protected internal ConversionMethod<TTarget, TContext> Converter { get; protected set; }
-        protected internal FieldPostMapMethod<TTarget, TContext> PostMap { get; protected set; }
+        protected internal LabelMethod<TTarget, TContext>? LabelGenerator { get; protected set; }
+        protected internal EnabledMethod<TTarget, TContext>? Enabled { get; protected set; }
+        protected internal RequiredMethod<TTarget, TContext>? Required { get; protected set; }
+        protected internal ConversionMethod<TTarget, TContext>? Converter { get; protected set; }
+        protected internal FieldPostMapMethod<TTarget, TContext>? PostMap { get; protected set; }
         
         public FieldMap() { }
 
-        public FieldMap(LambdaExpression sourceFieldExp, LambdaExpression targetFieldExp)
+        public FieldMap(LambdaExpression sourceFieldExp, LambdaExpression? targetFieldExp)
         {
-            List<PropertyInfo> GetProperties(Expression body)
+            static List<PropertyInfo> GetProperties(Expression body)
             {
                 var properties = new List<PropertyInfo>();
                 var memberExp = body as MemberExpression ?? (body as UnaryExpression)?.Operand as MemberExpression;
@@ -62,45 +54,54 @@ namespace PatchMap.Mapping
             }
         }
 
-        public string GenerateLabel(TTarget target, TContext context) => LabelGenerator(target, context);
+        public string? GenerateLabel(TTarget target, TContext context) => LabelGenerator?.Invoke(target, context);
 
-        public FieldMapConversionResult<object> ConvertValue(TTarget target, object value, TContext context)
+        public FieldMapConversionResult<object> ConvertValue(TTarget target, object? value, TContext context)
         {
             return Converter == null || value == null
-                ? new FieldMapConversionResult<object> { Value = value }
+                ? new FieldMapConversionResult<object> { Value = value! }  // TODO: find a way to indicate this is nullable
                 : Converter.Invoke(target, context, value);
         }
 
         public FieldMap<TTarget, TContext> HasLabel(LabelMethod<TTarget, TContext> label)
         {
             LabelGenerator = label;
+
             return this;
         }
+        
         public FieldMap<TTarget, TContext> IsEnabled(EnabledMethod<TTarget, TContext> enabled)
         {
             Enabled = enabled;
+
             return this;
         }
+        
         public FieldMap<TTarget, TContext> IsRequired(RequiredMethod<TTarget, TContext> required)
         {
             Required = required;
+            
             return this;
         }
+        
         public FieldMap<TTarget, TContext> IsCollectionItem()
         {
             CollectionItem = true;
+            
             return this;
         }
+        
         public FieldMap<TTarget, TContext> HasPostMap(FieldPostMapMethod<TTarget, TContext> postMap)
         {
             PostMap = postMap;
+            
             return this;
         }
     }
 
     public class FieldMap<TTarget, TContext, TSourceProp, TTargetProp> : FieldMap<TTarget, TContext>
     {
-        public FieldMap(LambdaExpression sourceFieldExp, LambdaExpression targetFieldExp) : base(sourceFieldExp, targetFieldExp) { }
+        public FieldMap(LambdaExpression sourceFieldExp, LambdaExpression? targetFieldExp) : base(sourceFieldExp, targetFieldExp) { }
 
         public FieldMap<TTarget, TContext, TSourceProp, TTargetProp> HasConverter(ConversionMethod<TTarget, TContext, TSourceProp, TTargetProp> converter)
         {
@@ -109,10 +110,11 @@ namespace PatchMap.Mapping
                 var r = converter(target, ctx, (TSourceProp)value);
                 return new FieldMapConversionResult<object>
                 {
-                    Value = r.Value,
+                    Value = r.Value!, // TODO: find a way to indicate this is nullable
                     FailureReason = r.FailureReason
                 };
             };
+
             return this;
         }
     }

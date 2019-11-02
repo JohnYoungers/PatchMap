@@ -1,7 +1,5 @@
-﻿using EFCoreAspNetCore.Blogs;
-using EFCoreAspNetCore.Blogs.Posts;
-using EFCoreAspNetCore.Exceptions;
-using LinqKit;
+﻿using EFCoreAspNetCore.Domain.Blogs.Posts;
+using EFCoreAspNetCore.Framework.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PatchMap;
 using System;
@@ -35,7 +33,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             results.AssertHasValidationResult("UpdatedPost", "Updated Post requires both a Post and an As Of Date");
 
             post.UpdatedAsOfDate = null;
-            post.UpdatedPost = PostSummaryViewModel.Map().Invoke(dbBlog.Entity.Posts.First());
+            post.UpdatedPost = PostSummaryViewModel.Map.Compile().Invoke(dbBlog.Entity.Posts.First());
             results = new PostPatchCommand(dbContext).Execute(dbBlog.Entity.BlogId, null, post.ToPatchOperations());
             results.AssertHasValidationResult("UpdatedPost", "Updated Post requires both a Post and an As Of Date");
 
@@ -61,7 +59,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             Assert.AreEqual(true, results.IsNew);
             Assert.AreEqual(nextId.ToString(), results.EntityId);
 
-            var refreshedPost = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, results.Entity.Id);
+            var refreshedPost = new PostQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId, results.Entity.Id);
             Assert.AreEqual(post.Title, refreshedPost.Title);
             Assert.AreEqual(post.Content, refreshedPost.Content);
             DatesAreSimilar(DateTimeOffset.Now, refreshedPost.Created);
@@ -85,9 +83,9 @@ namespace EFCoreAspNetCore.Tests.Blogs
 
             var dbPost = dbBlog.Entity.Posts.First();
             var dbPost2 = dbBlog.Entity.Posts.Skip(1).First();
-            var post = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
-            post.Title = post.Title + "Updated";
-            post.Content = post.Content + "Updated";
+            var post = new PostQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
+            post.Title += "Updated";
+            post.Content += "Updated";
             post.UpdatedAsOfDate = DateTimeOffset.Now;
             post.UpdatedPost = new PostSummaryViewModel { Id = dbPost2.PostId };
 
@@ -96,7 +94,7 @@ namespace EFCoreAspNetCore.Tests.Blogs
             Assert.IsTrue(results.Succeeded);
             Assert.AreEqual(false, results.IsNew);
 
-            var refreshedPost = new PostGetCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
+            var refreshedPost = new PostQueryCommand(dbContext).Execute(dbBlog.Entity.BlogId, dbPost.PostId);
             //These fields can only be set on insert
             Assert.AreEqual("A", refreshedPost.Title);
             Assert.AreEqual("B", refreshedPost.Content);

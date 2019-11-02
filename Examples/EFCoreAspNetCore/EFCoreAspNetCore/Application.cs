@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Exceptions;
+using PatchMap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace EFCoreAspNetCore
 {
@@ -19,16 +19,6 @@ namespace EFCoreAspNetCore
 
         public static void AddServices(IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            var serilog = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .Enrich.WithMachineName()
-                .Enrich.WithEnvironmentUserName()
-                .Enrich.WithExceptionDetails()
-                .Enrich.WithDemystifiedStackTraces()
-                .ReadFrom.Configuration(configuration);
-            Log.Logger = serilog.CreateLogger();
-            serviceCollection.AddLogging(builder => builder.AddSerilog(dispose: true));
-
             serviceCollection.AddDbContext<ExampleContext>(options => options.UseSqlServer(configuration.GetConnectionString("EFCore")));
         }
         public static void Configure(IServiceProvider serviceProvider)
@@ -36,11 +26,12 @@ namespace EFCoreAspNetCore
             ServiceProvider = serviceProvider;
             LoggerFactory = ServiceProvider.GetService<ILoggerFactory>();
 
-            using (var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
-                context.InitializeDatabase();
-            }
+            JsonPatch.ValueIsParsable = (o) => o is JsonElement;
+            JsonPatch.ParseValue = (o, t) => JsonSerializer.Deserialize(((JsonElement)o).GetRawText(), t);
+
+            using var serviceScope = ServiceProvider.GetService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ExampleContext>();
+            context.InitializeDatabase(true);
         }
 
         public static void LogInformation<T>(string message, params (string key, object value)[] context) => LogMessage<T>((logger) => logger.LogInformation(message), context);

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using PatchMap.Exceptions;
+﻿using PatchMap.Exceptions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,35 +8,43 @@ using System.Text;
 
 namespace PatchMap
 {
+    public delegate bool ValueIsParsable(object? obj);
+    public delegate object? ParseValue(object? obj, Type targetType);
+
     [Serializable]
     public class JsonPatch
     {
+        public static ValueIsParsable ValueIsParsable { get; set; } = (o) => false;
+        public static ParseValue ParseValue { get; set; } = (o, t) => o;
+
+#pragma warning disable IDE1006 // Naming Styles
         public PatchOperationTypes op { get; set; }
-        public string path { get; set; }
-        public object value { get; set; }
+        public string? path { get; set; }
+        public object? value { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
     }
 
     public static class JsonPatchExtensionMethods
     {
-        public static List<PatchOperation> ToPatchOperations<T>(this IEnumerable<JsonPatch> patches) where T : class
+        public static IEnumerable<PatchOperation> ToPatchOperations<T>(this IEnumerable<JsonPatch> patches) where T : class
         {
-            return (patches == null) ? new List<PatchOperation>() : patches.Select(p => BuildFromJson<T>(p)).ToList();
+            return (patches == null) ? Enumerable.Empty<PatchOperation>() : patches.Select(p => BuildFromJson<T>(p));
         }
 
         private static PatchOperation BuildFromJson<T>(JsonPatch patch) where T : class
         {
-            var result = new PatchOperation() { Operation = patch.op, JsonPatch = patch, JsonPatchValueParsed = true };
-
             var currentType = typeof(T);
-            PropertyInfo currentProperty = null;
-            PatchOperationPropertyTree lastCompiledProperty = null;
+            PropertyInfo? currentProperty = null;
+            PatchOperationPropertyPath? propertyTree = null;
+            PatchOperationPropertyPath? lastCompiledProperty = null;
 
-            var splitPath = ParseJsonPath(patch.path);
+            var splitPath = ParseJsonPath(patch.path.AsSpan());
             for (var i = 0; i < splitPath.Count; i++)
             {
                 bool isLastPart() => (i + 1 == splitPath.Count);
-                string collectionKey = null;
+                string? collectionKey = null;
                 var part = splitPath[i];
+
                 currentProperty = currentType.GetProperty(part, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                 if (currentProperty == null)
                 {
@@ -88,10 +95,10 @@ namespace PatchMap
                     }
                 }
 
-                var compiledProperty = new PatchOperationPropertyTree() { Property = currentProperty, CollectionKey = collectionKey };
+                var compiledProperty = new PatchOperationPropertyPath(currentProperty) { CollectionKey = collectionKey };
                 if (lastCompiledProperty == null)
                 {
-                    result.PropertyTree = compiledProperty;
+                    propertyTree = compiledProperty;
                 }
                 else
                 {
@@ -101,81 +108,69 @@ namespace PatchMap
                 lastCompiledProperty = compiledProperty;
             }
 
-            if (result.PropertyTree == null)
+            if (propertyTree == null)
             {
                 throw new JsonPatchParseException(patch, $"Path {patch.path} is not valid");
             }
 
-            if (patch.value is JToken)
+            var jsonPatchValueParsed = true;
+            object? value = null;
+            if (JsonPatch.ValueIsParsable(patch.value))
             {
-                result.Value = (patch.value as JToken).ToObject(currentType);
+                value = JsonPatch.ParseValue(patch.value, currentType);
             }
             else
             {
                 var conversionType = Nullable.GetUnderlyingType(currentType) ?? currentType;
                 try
                 {
-                    //Convert value to null if it's an empty string and the target type is not string
+                    // Convert value to null if it's an empty string and the target type is not string
                     var objValue = (patch.value is string && conversionType != typeof(string) && string.IsNullOrEmpty(patch.value as string)) ? null : patch.value;
 
-                    if (objValue == null && currentType != conversionType)
+                    if (objValue != null || currentType == conversionType)
                     {
-                        result.Value = null;
-                    }
-                    else if (conversionType == typeof(Guid) && objValue is string guid)
-                    {
-                        result.Value = Guid.Parse(guid);
-                    }
-                    else
-                    {
-                        result.Value = Convert.ChangeType(objValue, conversionType);
+                        if (conversionType == typeof(Guid) && objValue is string guid)
+                        {
+                            value = Guid.Parse(guid);
+                        }
+                        else
+                        {
+                            value = Convert.ChangeType(objValue, conversionType);
+                        }
                     }
                 }
                 catch (Exception ex) when (ex is FormatException || ex is InvalidCastException || ex is ArithmeticException)
                 {
-                    result.JsonPatchValueParsed = false;
+                    jsonPatchValueParsed = false;
                 }
             }
 
-            return result;
+            return new PatchOperation(propertyTree, patch.op, value) { JsonPatch = patch, JsonPatchValueParsed = jsonPatchValueParsed };
         }
 
-        private static List<string> ParseJsonPath(string fullPath)
+        private static List<string> ParseJsonPath(ReadOnlySpan<char> fullPath)
         {
             var results = new List<string>();
 
-            if (!string.IsNullOrEmpty(fullPath) && fullPath.Length > 0)
+            if (fullPath.Length > 0)
             {
-                var chars = fullPath.ToCharArray();
-                var currentSegment = new StringBuilder();
-                for (int i = (chars[0] == '/' ? 1 : 0); i < chars.Length; i++)
-                {
-                    switch (chars[i])
-                    {
-                        case '\\':
-                            if (chars.Length + 1 > i && chars[i + 1] == '/')
-                            {
-                                currentSegment.Append('/');
-                                i++;
-                            }
-                            else
-                            {
-                                currentSegment.Append('\\');
-                            }
-                            break;
-                        case '/':
-                            results.Add(currentSegment.ToString());
-                            currentSegment = new StringBuilder();
-                            break;
-                        default:
-                            currentSegment.Append(chars[i]);
-                            break;
-                    }
-                }
+                var curStartIndex = fullPath[0] == '/' ? 1 : 0;
+                var curParts = new List<string>();
 
-                if (currentSegment.Length > 0)
+                for (int i = curStartIndex; i < fullPath.Length; i++)
                 {
-                    results.Add(currentSegment.ToString());
+                    if (fullPath[i] == '\\' && fullPath.Length + 1 > i && fullPath[i + 1] == '/')
+                    {
+                        curParts.Add(fullPath.Slice(curStartIndex, i - curStartIndex).ToString());
+                        curStartIndex = ++i;
+                    }
+                    else if (fullPath[i] == '/' || i == fullPath.Length - 1)
+                    {
+                        var endOfString = i == fullPath.Length - 1;
+                        results.Add(string.Concat(string.Concat(curParts), fullPath.Slice(curStartIndex, i - curStartIndex + (endOfString ? 1 : 0)).ToString()));
+                        curParts.Clear();
+                        curStartIndex = i + 1;
+                    }
                 }
             }
 

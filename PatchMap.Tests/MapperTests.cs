@@ -61,7 +61,7 @@ namespace PatchMap.Tests
             {
                 path = "Id"
             };
-            var operations = (new[] { patch }).ToPatchOperations<SampleViewModel>();
+            var operations = (new[] { patch }).ToPatchOperations<SampleViewModel>().ToArray();
             var results = mapper.Map(operations, target, new SampleContext());
 
             void VerifyFailed()
@@ -77,7 +77,7 @@ namespace PatchMap.Tests
             VerifyFailed();
 
             patch.value = "Can't use a string for an int";
-            operations = (new[] { patch }).ToPatchOperations<SampleViewModel>();
+            operations = (new[] { patch }).ToPatchOperations<SampleViewModel>().ToArray();
             results = mapper.Map(operations, target, new SampleContext());
             VerifyFailed();
         }
@@ -102,12 +102,12 @@ namespace PatchMap.Tests
             Assert.AreEqual(5, target.ParentId);
 
             source.Parent.Id = 6;
-            var operations = source.ToPatchOperations();
+            var operations = source.ToPatchOperations().ToArray();
             results = mapper.Map(operations, target, new SampleContext());
             Assert.AreEqual(false, results.Succeeded);
             Assert.AreEqual(1, results.Failures.Count);
             Assert.AreEqual(mapper.Mappings[0], results.Failures[0].Map);
-            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyTree.ToString() == "Parent"), results.Failures[0].PatchOperation);
+            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyPath.ToString() == "Parent"), results.Failures[0].PatchOperation);
             Assert.AreEqual(MapResultFailureType.ValueConversionFailed, results.Failures[0].FailureType);
             Assert.AreEqual("6 is no good", results.Failures[0].Reason);
         }
@@ -147,12 +147,12 @@ namespace PatchMap.Tests
         {
             mapper.AddMap(vm => vm.MultiWordProperty, db => db.Multiwordproperty).IsRequired((t, ctx) => ctx.IsNew);
 
-            var operations = source.ToPatchOperations();
+            var operations = source.ToPatchOperations().ToArray();
             var results = mapper.Map(operations, target, new SampleContext { IsNew = true });
             Assert.AreEqual(false, results.Succeeded);
             Assert.AreEqual(1, results.Failures.Count);
             Assert.AreEqual(mapper.Mappings[0], results.Failures[0].Map);
-            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyTree.ToString() == "MultiWordProperty"), results.Failures[0].PatchOperation);
+            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyPath.ToString() == "MultiWordProperty"), results.Failures[0].PatchOperation);
             Assert.AreEqual(MapResultFailureType.Required, results.Failures[0].FailureType);
             Assert.AreEqual(null, results.Failures[0].Reason);
 
@@ -165,17 +165,17 @@ namespace PatchMap.Tests
         {
             mapper.MapTargetIsRequired = (SampleEntity target, SampleContext ctx, FieldMap<SampleEntity, SampleContext> map, PatchOperation operation) =>
             {
-                return operation.PropertyTree.ToString() == "MultiWordProperty";
+                return operation.PropertyPath.ToString() == "MultiWordProperty";
             };
 
             mapper.AddMap(vm => vm.MultiWordProperty, db => db.Multiwordproperty);
             mapper.AddMap(vm => vm.Address.AddressLine1, db => db.AddressLine1);
 
-            var operations = source.ToPatchOperations();
+            var operations = source.ToPatchOperations().ToArray();
             var results = mapper.Map(operations, target, new SampleContext());
             Assert.AreEqual(false, results.Succeeded);
             Assert.AreEqual(1, results.Failures.Count);
-            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyTree.ToString() == "MultiWordProperty"), results.Failures[0].PatchOperation);
+            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyPath.ToString() == "MultiWordProperty"), results.Failures[0].PatchOperation);
             Assert.AreEqual(mapper.Mappings[0], results.Failures[0].Map);
             Assert.AreEqual(MapResultFailureType.Required, results.Failures[0].FailureType);
             Assert.AreEqual(null, results.Failures[0].Reason);
@@ -235,11 +235,11 @@ namespace PatchMap.Tests
 
             mapper.AddMap(vm => vm.Id, db => db.Id);
 
-            var operations = source.ToPatchOperations();
+            var operations = source.ToPatchOperations().ToArray();
             var results = mapper.Map(operations, target, new SampleContext());
             Assert.AreEqual(false, results.Succeeded);
             Assert.AreEqual(1, results.Failures.Count);
-            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyTree.ToString() == "Id"), results.Failures[0].PatchOperation);
+            Assert.AreEqual(operations.FirstOrDefault(o => o.PropertyPath.ToString() == "Id"), results.Failures[0].PatchOperation);
             Assert.AreEqual(mapper.Mappings[0], results.Failures[0].Map);
             Assert.AreEqual(MapResultFailureType.ValueIsNotValid, results.Failures[0].FailureType);
             Assert.AreEqual("Failed for Other", results.Failures[0].Reason);
@@ -262,7 +262,7 @@ namespace PatchMap.Tests
         public void ThrowErrorOnMissingMapForJsonPatch()
         {
             var operations = source.ToPatchOperations();//load up some non-Json patches
-            operations.AddRange((new[] { new JsonPatch {
+            operations = operations.Union((new[] { new JsonPatch {
                 op = PatchOperationTypes.replace,
                 path = "Address/City",
                 value = 5

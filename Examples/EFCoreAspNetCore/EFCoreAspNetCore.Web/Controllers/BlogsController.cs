@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EFCoreAspNetCore.Blogs;
 using EFCoreAspNetCore.Data;
-using Microsoft.AspNet.OData.Query;
+using EFCoreAspNetCore.Domain.Blogs;
+using EFCoreAspNetCore.Framework;
 using Microsoft.AspNetCore.Mvc;
 using PatchMap;
 
@@ -15,16 +15,10 @@ namespace EFCoreAspNetCore.Web.Controllers
     {
         public BlogsController(ExampleContext dbContext) : base(dbContext) { }
 
-        [HttpGet]
-        public List<BlogViewModel> Search(ODataQueryOptions<Blog> query)
-        {
-            return new BlogGetCommand(DbContext).Execute(query.ApplyTo);
-        }
-
         [HttpGet("{id}")]
         public BlogViewModel Get(int id)
         {
-            return new BlogGetCommand(DbContext).Execute(id);
+            return new BlogQueryCommand(DbContext).Execute(id);
         }
 
         [HttpPost]
@@ -40,7 +34,7 @@ namespace EFCoreAspNetCore.Web.Controllers
         }
 
         [HttpPatch("{id}")]
-        public PatchCommandResult<BlogViewModel> Patch(int id, [FromBody]List<JsonPatch> patches)
+        public PatchCommandResult<BlogViewModel> Patch(int id, [FromBody]JsonPatch[] patches)
         {
             return new BlogPatchCommand(DbContext).Execute(id, patches.ToPatchOperations<BlogViewModel>());
         }
